@@ -1,0 +1,28 @@
+name: helmy
+description: health project
+
+version: 1.0.0+1
+environment:
+  sdk: '>=3.1.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  shared_preferences: ^2.2.2
+  localstorage: ^4.0.0+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Dohyeon
+      fonts:
+        - asset: assets/fonts/BMDOHYEON_ttf.ttf
+          weight: 100
+
