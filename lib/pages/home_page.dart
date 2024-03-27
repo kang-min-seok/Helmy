@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 // LocalStorage 인스턴스 생성
 final LocalStorage storage = LocalStorage('workout_data.json');
@@ -28,55 +29,56 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> {
+  List<Map<String, dynamic>> workoutList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    await storage.ready;
+    // LocalStorage에서 모든 데이터를 불러옵니다.
+    final allData = storage.getItem('workoutData') ?? [];
+    setState(() {
+      workoutList = List<Map<String, dynamic>>.from(allData);
+    });
+  }
+
+  Future<void> _addNewData() async {
+    final newId = workoutList.length + 1; // 새로운 ID를 생성합니다.
+    final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now()); // 오늘 날짜를 가져옵니다.
+    final newWorkoutData = {
+      "id": newId,
+      "date": todayDate,
+      "workout_part": '',
+      "rest_time": '',
+      "workoutType": {}
+    };
+
+    // 새로운 데이터를 리스트에 추가하고 저장합니다.
+    workoutList.add(newWorkoutData);
+    await storage.setItem('workoutData', json.encode(workoutList));
+    _loadAllData(); // 화면을 업데이트하기 위해 데이터를 다시 불러옵니다.
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: loadWorkoutData(1), // 운동 데이터 ID 1 불러오기
-        builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('에러: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text('데이터가 없습니다.'));
-          }
-          var workoutData = snapshot.data!;
-          return ListView(
-            children: [
-              ListTile(
-                title: Text('날짜: ${workoutData['date']}'),
-                subtitle: Text('운동부위: ${workoutData['workout_part']}'),
-              ),
-            ],
+      body: ListView.builder(
+        itemCount: workoutList.length,
+        itemBuilder: (context, index) {
+          final workoutData = workoutList[index];
+          return ListTile(
+            title: Text('날짜: ${workoutData['date']}'),
+            subtitle: Text('운동부위: ${workoutData['workout_part']}'),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var workoutData = {
-            "id": 1,
-            "date": '2024-03-26',
-            "workout_part": '가슴',
-            "rest_time": '2분',
-            "workoutType": {
-              "레그익스텐션": {
-                "40kg": [20, 20, 20],
-                "50kg": [15, 15, 15]
-              },
-              "스쿼트": {
-                "40kg": [20, 20, 20],
-                "60kg": [15, 15, 15]
-              },
-            }
-          };
-          // 데이터 저장
-          await saveWorkoutData(workoutData);
-
-        },
+        onPressed: _addNewData, // 버튼을 누를 때 _saveData를 호출합니다.
         backgroundColor: const Color(0xff0a46ff),
         shape: const CircleBorder(),
         child: const Icon(

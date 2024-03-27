@@ -11,6 +11,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.2.2
   localstorage: ^4.0.0+1
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
