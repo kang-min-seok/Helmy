@@ -1,24 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import '../models/WorkoutRecord.dart';
+import './widgets/workout_record_widget.dart';
 
-// LocalStorage 인스턴스 생성
-final LocalStorage storage = LocalStorage('workout_data.json');
-
-Future<void> saveWorkoutData(Map<String, dynamic> workoutData) async {
-  await storage.ready;
-  await storage.setItem('workout_${workoutData['id']}', json.encode(workoutData));
-}
-
-Future<Map<String, dynamic>?> loadWorkoutData(int id) async {
-  await storage.ready;
-  var data = storage.getItem('workout_$id');
-  if (data != null) {
-    return json.decode(data);
-  }
-  return null;
-}
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -29,64 +15,72 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> {
-  List<Map<String, dynamic>> workoutList = [];
+  List<WorkoutRecord> workoutRecords = [];
 
   @override
   void initState() {
     super.initState();
-    _loadAllData();
+    _loadData();
   }
 
-  Future<void> _loadAllData() async {
-    await storage.ready;
-    // LocalStorage에서 모든 데이터를 불러옵니다.
-    final allData = storage.getItem('workoutData') ?? [];
-    setState(() {
-      workoutList = List<Map<String, dynamic>>.from(allData);
-    });
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? storedData = prefs.getString('workoutRecords');
+    if (storedData != null) {
+      setState(() {
+        List<dynamic> recordsJson = jsonDecode(storedData) as List<dynamic>;
+        workoutRecords = recordsJson.map((recordJson) => WorkoutRecord.fromJson(recordJson)).toList();
+      });
+    }
   }
 
   Future<void> _addNewData() async {
-    final newId = workoutList.length + 1; // 새로운 ID를 생성합니다.
-    final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now()); // 오늘 날짜를 가져옵니다.
-    final newWorkoutData = {
-      "id": newId,
-      "date": todayDate,
-      "workout_part": '',
-      "rest_time": '',
-      "workoutType": {}
-    };
+    final newId = workoutRecords.isNotEmpty ? workoutRecords.last.id + 1 : 1;
+    final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    // 새로운 데이터를 리스트에 추가하고 저장합니다.
-    workoutList.add(newWorkoutData);
-    await storage.setItem('workoutData', json.encode(workoutList));
-    _loadAllData(); // 화면을 업데이트하기 위해 데이터를 다시 불러옵니다.
+    // Create a new workout record with empty workout part and types
+    final newRecord = WorkoutRecord(
+      id: newId,
+      date: todayDate,
+      workoutTypes: {
+        "가슴": {
+          "레그익스텐션": {"40": [20, 20, 20], "50": [15, 15, 15]},
+          "스쿼트": {"40": [20, 20, 20], "60": [15, 15, 15]},
+        },
+        "복근": {
+          "크런치": {"0": [20, 20, 20], },
+        }
+
+      }, // Initialize with an empty map
+    );
+
+    setState(() {
+      workoutRecords.add(newRecord);
+    });
+
+    // Save the updated workout records list to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    String encodedData = jsonEncode(workoutRecords.map((record) => record.toJson()).toList());
+    await prefs.setString('workoutRecords', encodedData);
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.builder(
-        itemCount: workoutList.length,
+        itemCount: workoutRecords.length,
         itemBuilder: (context, index) {
-          final workoutData = workoutList[index];
-          return ListTile(
-            title: Text('날짜: ${workoutData['date']}'),
-            subtitle: Text('운동부위: ${workoutData['workout_part']}'),
-          );
+          final record = workoutRecords[index];
+          return WorkoutRecordWidget(record: record);
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addNewData, // 버튼을 누를 때 _saveData를 호출합니다.
+        onPressed: _addNewData,
         backgroundColor: const Color(0xff0a46ff),
         shape: const CircleBorder(),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // 버튼 위치
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

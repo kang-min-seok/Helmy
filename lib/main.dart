@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Dohyeon",
         useMaterial3: true,
+        dividerColor: Colors.transparent,
       ),
       debugShowCheckedModeBanner: false,
       home: const BottomNavigation(),

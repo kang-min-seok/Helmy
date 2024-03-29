@@ -1,27 +1,42 @@
+import 'dart:convert';
+
 class WorkoutRecord {
-  final String date;
-  final String workoutPart;
-  final Map<String, dynamic> workoutTypes;
+  int id;
+  String date;
+  Map<String, Map<String, Map<String, List<int>>>> workoutTypes;
 
   WorkoutRecord({
+    required this.id,
     required this.date,
-    required this.workoutPart,
-    required this.workoutTypes,
-  });
+    Map<String, Map<String, Map<String, List<int>>>>? workoutTypes,
+  }) : workoutTypes = workoutTypes ?? {};
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'date': date,
-      'workoutPart': workoutPart,
-      'workoutTypes': workoutTypes,
+      'workoutTypes': workoutTypes.map((part, exercises) =>
+          MapEntry(part, exercises.map((exercise, sets) =>
+              MapEntry(exercise, sets.map((weight, reps) =>
+                  MapEntry(weight, reps)))))),
     };
   }
 
   factory WorkoutRecord.fromJson(Map<String, dynamic> json) {
+    var workoutTypesJson = json['workoutTypes'] as Map<String, dynamic>;
+    var workoutTypes = workoutTypesJson.map((part, exercisesJson) =>
+        MapEntry(
+            part,
+            (exercisesJson as Map<String, dynamic>).map((exercise, setsJson) =>
+                MapEntry(
+                    exercise,
+                    (setsJson as Map<String, dynamic>).map((weight, reps) =>
+                        MapEntry(weight, List<int>.from(reps)))))));
+
     return WorkoutRecord(
-      date: json['date'] as String,
-      workoutPart: json['workoutPart'] as String,
-      workoutTypes: json['workoutTypes'] as Map<String, dynamic>,
+      id: json['id'],
+      date: json['date'],
+      workoutTypes: workoutTypes,
     );
   }
 }
