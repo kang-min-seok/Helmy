@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import '../models/WorkoutRecord.dart';
 import './widgets/workout_record_widget.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,7 +10,6 @@ class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 
 class _HomePageState extends State<HomePage> {
   List<WorkoutRecord> workoutRecords = [];
@@ -24,21 +21,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? storedData = prefs.getString('workoutRecords');
-    if (storedData != null) {
-      setState(() {
-        List<dynamic> recordsJson = jsonDecode(storedData) as List<dynamic>;
-        workoutRecords = recordsJson.map((recordJson) => WorkoutRecord.fromJson(recordJson)).toList();
-      });
-    }
+    var box = Hive.box<WorkoutRecord>('workoutRecords');
+    setState(() {
+      workoutRecords = box.values.toList();
+    });
   }
 
   Future<void> _addNewData() async {
-    final newId = workoutRecords.isNotEmpty ? workoutRecords.last.id + 1 : 1;
+    var box = Hive.box<WorkoutRecord>('workoutRecords');
+
+    final newId = box.values.isNotEmpty ? box.values.last.id + 1 : 1;
     final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    // Create a new workout record with empty workout part and types
     final newRecord = WorkoutRecord(
       id: newId,
       date: todayDate,
@@ -48,20 +42,13 @@ class _HomePageState extends State<HomePage> {
           "스쿼트": {"40": [20, 20, 20], "60": [15, 15, 15]},
         },
         "복근": {
-          "크런치": {"0": [20, 20, 20], },
+          "크런치": {"0": [20, 20, 20]},
         }
-
-      }, // Initialize with an empty map
+      },
     );
 
-    setState(() {
-      workoutRecords.add(newRecord);
-    });
-
-    // Save the updated workout records list to SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    String encodedData = jsonEncode(workoutRecords.map((record) => record.toJson()).toList());
-    await prefs.setString('workoutRecords', encodedData);
+    await box.add(newRecord);
+    _loadData();
   }
 
   @override

@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import './pages/home_page.dart';
 import './pages/calendar_page.dart';
 import './pages/timer_page.dart';
 import './pages/profile_page.dart';
+import './models/WorkoutRecord.dart';  // WorkoutRecord 모델 import
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();  // Flutter 엔진과 위젯 바인딩을 초기화
+  await Hive.initFlutter();  // Hive를 초기화
+  Hive.registerAdapter(WorkoutRecordAdapter());  // WorkoutRecord 어댑터 등록
+  await Hive.openBox<WorkoutRecord>('workoutRecords');  // workoutRecords 박스 열기
   runApp(const MyApp());
 }
 
@@ -26,7 +32,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key? key}) : super(key: key);
 
@@ -37,6 +42,7 @@ class BottomNavigation extends StatefulWidget {
 class _BottomNavigationState extends State<BottomNavigation> {
   int _selectedIndex = 0;
   final BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -48,11 +54,11 @@ class _BottomNavigationState extends State<BottomNavigation> {
         titleSpacing: 0,
         leading: null,
         title: const Text(
-        "헬미",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-            color: Color(0xff000000)),
-      ),
+          "헬미",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: Color(0xff000000)),
+        ),
 
       ),
       body: _getPageWidget(_selectedIndex),
@@ -85,8 +91,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
     }
   }
 }
-
-
 
 const _bottomBarItems = [
   BottomNavigationBarItem(
