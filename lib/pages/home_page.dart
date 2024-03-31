@@ -39,20 +39,39 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addNewData() async {
     var recordsBox = Hive.box<WorkoutRecord>('workoutRecords');
+    var typesBox = Hive.box<WorkoutType>('workoutTypes');
+    var exercisesBox = Hive.box<Exercise>('exercises');
+    var setsBox = Hive.box<Set>('sets');
 
     final newId = recordsBox.values.isNotEmpty ? recordsBox.values.last.id + 1 : 1;
     final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    // WorkoutRecord만 생성하고, workoutTypeIds는 빈 배열로 초기화
+    // 새로운 WorkoutType, Exercise, Set 생성
+    final newWorkoutTypeId = typesBox.values.isNotEmpty ? typesBox.values.last.id + 1 : 0;
+    final newExerciseId = exercisesBox.values.isNotEmpty ? exercisesBox.values.last.id + 1 : 0;
+    final newSetId = setsBox.values.isNotEmpty ? setsBox.values.last.id + 1 : 0;
+
+    final newSet = Set(id: newSetId, weight: '', reps: ['','','','','']);
+    final newExercise = Exercise(id: newExerciseId, name: '', setIds: [newSetId]);
+    final newWorkoutType = WorkoutType(id: newWorkoutTypeId, name: '', exerciseIds: [newExerciseId]);
+
+    // 각 객체를 Hive에 저장
+    await setsBox.put(newSetId, newSet);
+    await exercisesBox.put(newExerciseId, newExercise);
+    await typesBox.put(newWorkoutTypeId, newWorkoutType);
+
+    // WorkoutRecord 생성 및 저장
     final newRecord = WorkoutRecord(
       id: newId,
       date: todayDate,
-      workoutTypeIds: [],  // 빈 배열로 초기화
+      workoutTypeIds: [newWorkoutTypeId],
+      isEdit: true,
     );
+    await recordsBox.add(newRecord);
 
-    await recordsBox.add(newRecord);  // 새로운 WorkoutRecord 저장
     _loadData();
   }
+
 
   @override
   Widget build(BuildContext context) {

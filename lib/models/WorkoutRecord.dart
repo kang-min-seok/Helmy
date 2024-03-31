@@ -13,10 +13,14 @@ class WorkoutRecord extends HiveObject {
   @HiveField(2)
   List<int> workoutTypeIds; // 운동 유형의 ID 목록
 
+  @HiveField(3)
+  bool isEdit;
+
   WorkoutRecord({
     required this.id,
     required this.date,
     required this.workoutTypeIds,
+    required this.isEdit,
   });
   @override
   String toString() {
@@ -77,7 +81,7 @@ class Set extends HiveObject {
   String weight;
 
   @HiveField(2)
-  List<int> reps;
+  List<String> reps;
 
   Set({
     required this.id,

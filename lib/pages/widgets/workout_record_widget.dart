@@ -67,10 +67,11 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool isEdit = widget.record.isEdit;
     return Card(
       margin: EdgeInsets.all(8.0),
       child: Container(
-        padding: EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(4.0),
         child: ExpansionTile(
           title: Text(
             widget.record.date,
@@ -86,31 +87,26 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget> {
               return Column(
                 children: [
                   ListTile(
-                    title: _dropDown(partName),
+                    title: isEdit ? _dropDown(partName, type.id) : Text(partName),
                     subtitle: Column(
                       children: exercises[type.id]!.map((exercise) {
-                        TextEditingController exerciseNameController =
-                            TextEditingController(text: exercise.name);
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextFormField(
+                            isEdit ? TextFormField(
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 hintText: '운동 이름',
                                 contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                               ),
-                              controller: exerciseNameController,
-                              onFieldSubmitted: (newName) {},
-                            ),
+                              onFieldSubmitted: (newName) {
+                                exercise.name = newName; // Exercise 객체의 name 속성을 새로운 이름으로 업데이트합니다.
+                                exercise.save(); // 변경 사항을 Hive 데이터베이스에 저장합니다.
+                                print("저장완료: ${exercise.name}");
+                              },
+                            ) : Text(exercise.name),
                             const SizedBox(height: 10),
                             ...sets[exercise.id]!.map((set) {
-                              TextEditingController weightController =
-                                  TextEditingController(
-                                      text: set.weight.toString());
-                              TextEditingController repsController =
-                                  TextEditingController(
-                                      text: set.reps.join(", "));
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -119,32 +115,57 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
-                                        flex: 3,
-                                        child: TextFormField(
+                                        flex: 2,
+                                        child: isEdit ? TextFormField(
                                           decoration: const InputDecoration(
                                             border: OutlineInputBorder(),
                                             hintText: '무게',
                                             contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                                           ),
                                           keyboardType: TextInputType.number,
-                                          controller: weightController,
-                                          onFieldSubmitted: (newWeight) {},
-                                        ),
+                                          onFieldSubmitted: (newWeight) {
+                                            var setsBox = Hive.box<Set>('sets');
+                                            var updatedSet = setsBox.get(set.id); // 올바른 ID로 Set 객체를 가져옵니다.
+
+                                            if (updatedSet != null && newWeight.isNotEmpty) {
+                                              updatedSet.weight = newWeight; // Set 객체의 weight 속성을 새로운 무게로 업데이트합니다.
+                                              updatedSet.save(); // 변경 사항을 Hive 데이터베이스에 저장합니다.
+                                            }
+                                          },
+                                        ) : Text(set.weight.toString()),
                                       ),
                                       const SizedBox(width: 5),
                                       const Text("kg"),
                                       const SizedBox(width: 10),
                                       Expanded(
-                                        flex: 7,
-                                        child: TextFormField(
-                                          decoration: const InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            hintText: '띄어쓰기로 구분',
-                                            contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                                          ),
-                                          keyboardType: TextInputType.number,
-                                          controller: repsController,
-                                          onFieldSubmitted: (newReps) {},
+                                        flex: 8,
+                                        child: Row(
+                                          children: List.generate(10, (index) {
+                                            var setsBox = Hive.box<Set>('sets');
+                                            var updatedSet = setsBox.get(set.id); // 올바른 ID로 Set 객체를 가져옵니다.
+                                            if (index % 2 == 1) {
+                                              return SizedBox(width: 2);
+                                            } else {
+                                              int repIndex = index ~/ 2;
+                                              return Expanded(
+                                                child: isEdit ? TextFormField(
+                                                  decoration: const InputDecoration(
+                                                    border: OutlineInputBorder(),
+                                                    contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                                  ),
+                                                  keyboardType: TextInputType.number,
+                                                  onFieldSubmitted: (newRep) {
+                                                    if (updatedSet != null && newRep.isNotEmpty) {
+                                                      // newRep 값이 비어 있지 않을 때만 업데이트
+                                                      updatedSet.reps[repIndex] = newRep; // repIndex 위치의 reps 값을 newRep으로 업데이트
+                                                      updatedSet.save(); // 변경 사항을 Hive 데이터베이스에 저장합니다.
+                                                      print("저장완료: ${updatedSet.reps}");
+                                                    }
+                                                  },
+                                                ) : Text(updatedSet!.reps[repIndex]),
+                                              );
+                                            }
+                                          }),
                                         ),
                                       ),
                                       const SizedBox(width: 5),
@@ -155,30 +176,46 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget> {
                                 ],
                               );
                             }).toList(),
-                            ListTile(
+                            isEdit ? ListTile(
                               leading: Icon(Icons.add),
                               title: Text('무게 추가'),
                               onTap: () => _addNewSet(exercise.id),
-                            ),
+                            ) : Container(),
                           ],
                         );
                       }).toList(),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ListTile(
+                  isEdit ? ListTile(
                     leading: Icon(Icons.add),
                     title: Text('운동 추가'),
                     onTap: () => _addNewExercise(type.id),
-                  ),
+                  ) : Container(),
                 ],
               );
             }).toList(),
-            ListTile(
+            isEdit ? ListTile(
               leading: Icon(Icons.add),
               title: Text('부위 추가'),
               onTap: _addNewEntry,
-            ),
+            ) : Container(),
+            isEdit ? Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    widget.record.isEdit = false; // isEdit 값을 false로 설정합니다.
+                  });
+                  widget.record.save();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff0a46ff),
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('작성 완료'),
+              ),
+            ) : Container(),
           ],
         ),
       ),
@@ -205,7 +242,7 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget> {
 
     // 새 Set 추가
     var newSetId = setsBox.values.isNotEmpty ? setsBox.values.last.id + 1 : 0;
-    var newSet = Set(id: newSetId, weight: '', reps: []);
+    var newSet = Set(id: newSetId, weight: '', reps: ['','','','','']);
     await setsBox.put(newSetId, newSet);
 
     // 연결된 IDs 업데이트
@@ -285,26 +322,40 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget> {
     _loadData(); // UI 갱신
   }
 
-  Widget _dropDown(String partName) {
+  Widget _dropDown(String partName, int typeID) {
+    var workoutTypeBox = Hive.box<WorkoutType>('workoutTypes');
+    var workoutType = workoutTypeBox.get(typeID);
+
+    String? dropdownValue = workoutType?.name.isNotEmpty ?? false ? workoutType?.name : null;
+
+    List<String> dropdownItems = ['부위 선택'] + _exercises;
+    if (!dropdownItems.contains(dropdownValue)) {
+      dropdownValue = '부위 선택';
+    }
+
     return DropdownButton<String>(
-      value: _selectedExercises[partName],
-      // Use the Map for tracking selected item per partName
+      value: dropdownValue,
       onChanged: (String? newValue) {
-        if (newValue != null) {
-          // Check for null before assigning
+        if (newValue != null && newValue != '부위 선택') {
           setState(() {
             _selectedExercises[partName] = newValue;
+            if (workoutType != null) {
+              workoutType.name = newValue;
+              workoutType.save();
+            }
           });
-          // 이 부분에서도 필요한 경우 변경사항을 저장해야 할 수 있습니다.
         }
       },
-      items: _exercises
-          .map((exercise) => DropdownMenuItem<String>(
-                value: exercise,
-                child: Text(exercise),
-              ))
-          .toList(),
+      items: dropdownItems.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
+
+
+
 }
 
