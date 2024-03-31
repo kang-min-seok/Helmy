@@ -21,33 +21,36 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadData() async {
-    var box = Hive.box<WorkoutRecord>('workoutRecords');
+    var recordsBox = Hive.box<WorkoutRecord>('workoutRecords');
+    var typesBox = Hive.box<WorkoutType>('workoutTypes');
+    var exercisesBox = Hive.box<Exercise>('exercises');
+    var setsBox = Hive.box<Set>('sets');
+
+
+    print(recordsBox.values);
+    print(typesBox.values);
+    print(exercisesBox.values);
+    print(setsBox.values);
+
     setState(() {
-      workoutRecords = box.values.toList();
+      workoutRecords = recordsBox.values.toList();
     });
   }
 
   Future<void> _addNewData() async {
-    var box = Hive.box<WorkoutRecord>('workoutRecords');
+    var recordsBox = Hive.box<WorkoutRecord>('workoutRecords');
 
-    final newId = box.values.isNotEmpty ? box.values.last.id + 1 : 1;
+    final newId = recordsBox.values.isNotEmpty ? recordsBox.values.last.id + 1 : 1;
     final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
+    // WorkoutRecord만 생성하고, workoutTypeIds는 빈 배열로 초기화
     final newRecord = WorkoutRecord(
       id: newId,
       date: todayDate,
-      workoutTypes: {
-        "가슴": {
-          "레그익스텐션": {"40": [20, 20, 20], "50": [15, 15, 15]},
-          "스쿼트": {"40": [20, 20, 20], "60": [15, 15, 15]},
-        },
-        "복근": {
-          "크런치": {"0": [20, 20, 20]},
-        }
-      },
+      workoutTypeIds: [],  // 빈 배열로 초기화
     );
 
-    await box.add(newRecord);
+    await recordsBox.add(newRecord);  // 새로운 WorkoutRecord 저장
     _loadData();
   }
 

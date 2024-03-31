@@ -10,7 +10,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();  // Flutter 엔진과 위젯 바인딩을 초기화
   await Hive.initFlutter();  // Hive를 초기화
   Hive.registerAdapter(WorkoutRecordAdapter());  // WorkoutRecord 어댑터 등록
-  await Hive.openBox<WorkoutRecord>('workoutRecords');  // workoutRecords 박스 열기
+  Hive.registerAdapter(WorkoutTypeAdapter());    // WorkoutType 어댑터 등록
+  Hive.registerAdapter(ExerciseAdapter());       // Exercise 어댑터 등록
+  Hive.registerAdapter(SetAdapter());
+  // Set 어댑터 등록
+  await Hive.openBox<WorkoutRecord>('workoutRecords'); // workoutRecords 박스 열기
+  await Hive.openBox<WorkoutType>('workoutTypes');     // workoutTypes 박스 열기
+  await Hive.openBox<Exercise>('exercises');           // exercises 박스 열기
+  await Hive.openBox<Set>('sets');                     // sets 박스 열기
   runApp(const MyApp());
 }
 
