@@ -52,8 +52,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final bool isLargeScreen = width > 800;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,

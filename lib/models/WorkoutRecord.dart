@@ -68,7 +68,7 @@ class Exercise extends HiveObject {
   });
   @override
   String toString() {
-    return 'Exercise(id: $id, name: $name, exerciseIds: $setIds)';
+    return 'Exercise(id: $id, name: $name, setIds: $setIds)';
   }
 }
 
@@ -90,6 +90,6 @@ class Set extends HiveObject {
   });
   @override
   String toString() {
-    return 'Set(id: $id, name: $weight, exerciseIds: $reps)';
+    return 'Set(id: $id, weight: $weight, reps: $reps)';
   }
 }

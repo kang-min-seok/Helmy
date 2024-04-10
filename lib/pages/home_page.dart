@@ -11,30 +11,60 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   List<WorkoutRecord> workoutRecords = [];
+  int _selectedIndex = -1;
+  List<String> tabs = ['하체', '가슴', '등', '어깨', '복근', '팔'];
+  bool dataLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    if (!dataLoaded) {
+      _loadData();
+      dataLoaded = true;
+    }
   }
 
   Future<void> _loadData() async {
     var recordsBox = Hive.box<WorkoutRecord>('workoutRecords');
     var typesBox = Hive.box<WorkoutType>('workoutTypes');
-    var exercisesBox = Hive.box<Exercise>('exercises');
-    var setsBox = Hive.box<Set>('sets');
 
+    List<WorkoutRecord> allRecords = recordsBox.values.toList();
+    List<WorkoutType> allTypes = typesBox.values.toList();
 
-    print(recordsBox.values);
-    print(typesBox.values);
-    print(exercisesBox.values);
-    print(setsBox.values);
-
-    setState(() {
-      workoutRecords = recordsBox.values.toList();
+    allRecords.sort((a, b) {
+      DateTime dateA = DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(a.date);
+      DateTime dateB = DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(b.date);
+      return dateB.compareTo(dateA);
     });
+
+    WorkoutType? selectedType;
+    if (_selectedIndex != -1) {
+      String selectedTypeName = tabs[_selectedIndex];
+
+      // Find the WorkoutType with the matching name from the selected tab
+      for (var type in allTypes) {
+        if (type.name == selectedTypeName) {
+          selectedType = type;
+          break;
+        }
+      }
+      workoutRecords = allRecords.where((record) {
+        return record.isEdit || (selectedType != null && record.workoutTypeIds.contains(selectedType.id));
+      }).toList();
+
+    }else {
+      // If no tab is selected, load all records
+      workoutRecords = allRecords;
+    }
+
+
+
+
+
+    setState(() {});
   }
 
   Future<void> _addNewData() async {
@@ -43,17 +73,22 @@ class _HomePageState extends State<HomePage> {
     var exercisesBox = Hive.box<Exercise>('exercises');
     var setsBox = Hive.box<Set>('sets');
 
-    final newId = recordsBox.values.isNotEmpty ? recordsBox.values.last.id + 1 : 1;
-    final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final newId =
+        recordsBox.values.isNotEmpty ? recordsBox.values.last.id + 1 : 1;
+    final todayDate = DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(DateTime.now());
 
     // 새로운 WorkoutType, Exercise, Set 생성
-    final newWorkoutTypeId = typesBox.values.isNotEmpty ? typesBox.values.last.id + 1 : 0;
-    final newExerciseId = exercisesBox.values.isNotEmpty ? exercisesBox.values.last.id + 1 : 0;
+    final newWorkoutTypeId =
+        typesBox.values.isNotEmpty ? typesBox.values.last.id + 1 : 0;
+    final newExerciseId =
+        exercisesBox.values.isNotEmpty ? exercisesBox.values.last.id + 1 : 0;
     final newSetId = setsBox.values.isNotEmpty ? setsBox.values.last.id + 1 : 0;
 
-    final newSet = Set(id: newSetId, weight: '', reps: ['','','','','']);
-    final newExercise = Exercise(id: newExerciseId, name: '', setIds: [newSetId]);
-    final newWorkoutType = WorkoutType(id: newWorkoutTypeId, name: '', exerciseIds: [newExerciseId]);
+    final newSet = Set(id: newSetId, weight: '', reps: ['', '', '', '', '']);
+    final newExercise =
+        Exercise(id: newExerciseId, name: '', setIds: [newSetId]);
+    final newWorkoutType = WorkoutType(
+        id: newWorkoutTypeId, name: '', exerciseIds: [newExerciseId]);
 
     // 각 객체를 Hive에 저장
     await setsBox.put(newSetId, newSet);
@@ -72,15 +107,183 @@ class _HomePageState extends State<HomePage> {
     _loadData();
   }
 
+  Future<void> deleteWorkoutRecord(WorkoutRecord record) async {
+    var typesBox = Hive.box<WorkoutType>('workoutTypes');
+    var exercisesBox = Hive.box<Exercise>('exercises');
+    var setsBox = Hive.box<Set>('sets');
+
+    // 각 WorkoutType에 대해 연관된 Exercise들을 삭제합니다.
+    for (var typeId in record.workoutTypeIds) {
+      var workoutType = typesBox.get(typeId);
+      if (workoutType != null) {
+        for (var exerciseId in workoutType.exerciseIds) {
+          var exercise = exercisesBox.get(exerciseId);
+          if (exercise != null) {
+            // 각 Exercise에 대해 연관된 Set들을 삭제합니다.
+            for (var setId in exercise.setIds) {
+              setsBox.delete(setId);
+            }
+            // Exercise 객체를 삭제합니다.
+            exercisesBox.delete(exerciseId);
+          }
+        }
+        // WorkoutType 객체를 삭제합니다.
+        typesBox.delete(typeId);
+      }
+    }
+
+    await record.delete();
+    setState(() {
+      workoutRecords.removeWhere((item) => item.id == record.id);
+    });
+    await Hive.box<WorkoutRecord>('workoutRecords').compact();
+  }
+
+  Future<void> _selectDate(BuildContext context, WorkoutRecord record) async {
+    DateTime initialDate = DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(record.date);
+
+    // Use showDatePicker to pick a new date.
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light(), // Customize the theme as needed.
+          child: child!,
+        );
+      },
+    );
+
+    // If the user has picked a date, update the record's date.
+    if (pickedDate != null && pickedDate != initialDate) {
+      // Keep the current time parts (hours, minutes, seconds, and milliseconds).
+      DateTime now = DateTime.now();
+      DateTime updatedDateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        now.hour,
+        now.minute,
+        now.second,
+        now.millisecond,
+      );
+
+      setState(() {
+        // Format the updated date-time and update the record.
+        record.date = DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(updatedDateTime);
+        record.save();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leadingWidth: 0, // Removes the leading space
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: List.generate(tabs.length, (index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                // Control spacing between buttons
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    foregroundColor:
+                        _selectedIndex == index ? Colors.white : Colors.black,
+                    backgroundColor: _selectedIndex == index
+                        ? const Color(0xFF0A46FF)
+                        : Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
+                  child: Text(tabs[index]),
+                  onPressed: () {
+                    setState(() {
+                      if (_selectedIndex == index) {
+                        _selectedIndex = -1;
+                      } else {
+                        _selectedIndex = index;
+                      }
+                      _loadData();
+                    });
+                  },
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
       body: ListView.builder(
         itemCount: workoutRecords.length,
         itemBuilder: (context, index) {
+          if (index >= workoutRecords.length) {
+            return const SizedBox.shrink();
+          }
           final record = workoutRecords[index];
-          return WorkoutRecordWidget(record: record);
+          return GestureDetector(
+            onLongPress: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  List<Widget> menuItems = record.isEdit
+                      ? [
+                          ListTile(
+                            leading: const Icon(Icons.date_range),
+                            title: const Text('날짜 변경하기'),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              _selectDate(context, record);
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.delete),
+                            title: const Text('삭제하기'),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              deleteWorkoutRecord(record);
+                            },
+                          ),
+                        ]
+                      : [
+                          ListTile(
+                            leading: const Icon(Icons.edit),
+                            title: const Text('수정하기'),
+                            onTap: () {
+                              setState(() {
+                                record.isEdit = true;
+                                record.save();
+                              });
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.delete),
+                            title: const Text('삭제하기'),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              deleteWorkoutRecord(record);
+                            },
+                          ),
+                        ];
+
+                  return SafeArea(
+                    child: Wrap(
+                      children: menuItems,
+                    ),
+                  );
+                },
+              );
+            },
+            child: WorkoutRecordWidget(
+              key: ValueKey(record.id),
+              record: record,
+            ),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(

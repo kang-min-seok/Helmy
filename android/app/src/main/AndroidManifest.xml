@@ -3,6 +3,9 @@
         android:label="helmy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <service
+            android:name="service.MyService"
+            android:stopWithTask="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
