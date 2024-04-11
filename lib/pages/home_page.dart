@@ -197,9 +197,10 @@ class _HomePageState extends State<HomePage>
                         _selectedIndex == index ? Colors.white : Colors.black,
                     backgroundColor: _selectedIndex == index
                         ? const Color(0xFF0A46FF)
-                        : Colors.transparent,
+                        : const Color(0xFFDEDEDE),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20)),
+                    elevation: 0,
                   ),
                   child: Text(tabs[index]),
                   onPressed: () {
