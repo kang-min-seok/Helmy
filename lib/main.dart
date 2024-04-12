@@ -3,21 +3,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import './pages/home_page.dart';
 import './pages/calendar_page.dart';
 import './pages/timer_page.dart';
-import './pages/profile_page.dart';
-import './models/WorkoutRecord.dart';  // WorkoutRecord 모델 import
+import './pages/setting_page.dart';
+import './models/WorkoutRecord.dart'; // WorkoutRecord 모델 import
+import 'notification.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();  // Flutter 엔진과 위젯 바인딩을 초기화
-  await Hive.initFlutter();  // Hive를 초기화
-  Hive.registerAdapter(WorkoutRecordAdapter());  // WorkoutRecord 어댑터 등록
-  Hive.registerAdapter(WorkoutTypeAdapter());    // WorkoutType 어댑터 등록
-  Hive.registerAdapter(ExerciseAdapter());       // Exercise 어댑터 등록
+  WidgetsFlutterBinding.ensureInitialized(); // Flutter 엔진과 위젯 바인딩을 초기화
+  await Hive.initFlutter(); // Hive를 초기화
+  Hive.registerAdapter(WorkoutRecordAdapter()); // WorkoutRecord 어댑터 등록
+  Hive.registerAdapter(WorkoutTypeAdapter()); // WorkoutType 어댑터 등록
+  Hive.registerAdapter(ExerciseAdapter()); // Exercise 어댑터 등록
   Hive.registerAdapter(SetAdapter());
   // Set 어댑터 등록
   await Hive.openBox<WorkoutRecord>('workoutRecords'); // workoutRecords 박스 열기
-  await Hive.openBox<WorkoutType>('workoutTypes');     // workoutTypes 박스 열기
-  await Hive.openBox<Exercise>('exercises');           // exercises 박스 열기
-  await Hive.openBox<Set>('sets');                     // sets 박스 열기
+  await Hive.openBox<WorkoutType>('workoutTypes'); // workoutTypes 박스 열기
+  await Hive.openBox<Exercise>('exercises'); // exercises 박스 열기
+  await Hive.openBox<Set>('sets'); // sets 박스 열기
   runApp(const MyApp());
 }
 
@@ -51,6 +52,14 @@ class _BottomNavigationState extends State<BottomNavigation> {
   final BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
 
   @override
+  void initState() {
+    FlutterLocalNotification.init();
+    FlutterLocalNotification.requestNotificationPermission();
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -61,10 +70,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
         title: const Text(
           "헬미",
           textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Color(0xff000000)),
+          style: TextStyle(color: Color(0xff000000)),
         ),
-
+        centerTitle: true,
       ),
       body: _getPageWidget(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
@@ -90,7 +98,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
       case 2:
         return const TimerPage();
       case 3:
-        return const ProfilePage();
+        return const SettingPage();
       default:
         return const HomePage();
     }
@@ -114,8 +122,8 @@ const _bottomBarItems = [
     label: '타이머',
   ),
   BottomNavigationBarItem(
-    icon: Icon(Icons.person_outline_rounded),
-    activeIcon: Icon(Icons.person_rounded),
-    label: '프로필',
+    icon: Icon(Icons.settings_outlined),
+    activeIcon: Icon(Icons.settings),
+    label: '설정',
   ),
 ];

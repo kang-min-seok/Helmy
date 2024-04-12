@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  flutter_local_notifications: ^17.0.0
   shared_preferences: ^2.2.2
   localstorage: ^4.0.0+1
   intl: ^0.17.0
