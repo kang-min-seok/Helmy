@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import './pages/home_page.dart';
 import './pages/calendar_page.dart';
@@ -8,7 +7,7 @@ import './pages/timer_page.dart';
 import './pages/setting_page.dart';
 import './models/WorkoutRecord.dart'; // WorkoutRecord 모델 import
 import 'notification.dart';
-
+import 'themeCustom.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,29 +16,34 @@ void main() async {
   Hive.registerAdapter(WorkoutTypeAdapter());
   Hive.registerAdapter(ExerciseAdapter());
   Hive.registerAdapter(SetAdapter());
-  // Set 어댑터 등록
+  // 운동 내부 데이터
   await Hive.openBox<WorkoutRecord>('workoutRecords');
   await Hive.openBox<WorkoutType>('workoutTypes');
   await Hive.openBox<Exercise>('exercises');
   await Hive.openBox<Set>('sets');
+
   runApp(const MyApp());
 }
 
 
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget  {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+
+}
+
+class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '헬미',
-      theme: ThemeData(
-        fontFamily: "Dohyeon",
-        useMaterial3: true,
-        dividerColor: Colors.transparent,
-        primaryColor: const Color(0xff0a46ff),
-      ),
+      themeMode: ThemeMode.system,
+      theme: ThemeCustom.lightTheme,
+      darkTheme: ThemeCustom.darkTheme,
       debugShowCheckedModeBanner: false,
       home: const BottomNavigation(),
     );
@@ -65,26 +69,23 @@ class _BottomNavigationState extends State<BottomNavigation> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
         titleSpacing: 0,
         leading: null,
         title: const Text(
           "헬미",
           textAlign: TextAlign.center,
-          style: TextStyle(color: Color(0xff000000)),
         ),
         centerTitle: true,
       ),
       body: _getPageWidget(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
-          selectedItemColor: const Color(0xff0a46ff),
-          unselectedItemColor: const Color(0xff757575),
           type: _bottomNavType,
           onTap: (index) {
             setState(() {

@@ -200,9 +200,6 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                             child: TextFormField(
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0xff0a46ff), width: 2.0),
-                                    ),
                                     hintText: '운동 이름',
                                     contentPadding: EdgeInsets.symmetric(
                                         vertical: 10.0, horizontal: 10.0),
@@ -222,7 +219,6 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                             padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
                             child: Text(
                                 style: const TextStyle(
-                                  color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 17,
                                 ),
@@ -287,9 +283,6 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                                     child: TextFormField(
                                                       decoration: const InputDecoration(
                                                         border: OutlineInputBorder(),
-                                                        focusedBorder: OutlineInputBorder(
-                                                          borderSide: BorderSide(color: Color(0xff0a46ff), width: 2.0),
-                                                        ),
                                                         hintText: '무게',
                                                         contentPadding: EdgeInsets
                                                             .symmetric(
@@ -370,9 +363,6 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                                           child: TextFormField(
                                                             decoration: const InputDecoration(
                                                               border: OutlineInputBorder(),
-                                                              focusedBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Color(0xff0a46ff), width: 2.0),
-                                                              ),
                                                               contentPadding: EdgeInsets
                                                                   .symmetric(
                                                                   vertical: 10.0,
@@ -458,8 +448,9 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
             )
                 : Container(),
             isEdit
-                ? SizedBox(
+                ? Container(
               width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 5.0),
               child: ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -468,10 +459,6 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                   saveTempDataToHive();
                   widget.record.save();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff0a46ff),
-                  foregroundColor: Colors.white,
-                ),
                 child: const Text('작성 완료'),
               ),
             )

@@ -182,7 +182,8 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 0, // Removes the leading space
+        leadingWidth: 0,
+        backgroundColor: Colors.transparent,// Removes the leading space
         title: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -289,9 +290,8 @@ class _HomePageState extends State<HomePage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewData,
-        backgroundColor: const Color(0xff0a46ff),
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

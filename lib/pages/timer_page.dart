@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../notification.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
 class TimerPage extends StatefulWidget {
