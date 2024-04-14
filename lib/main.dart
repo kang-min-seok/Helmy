@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import './pages/home_page.dart';
 import './pages/calendar_page.dart';
@@ -7,20 +9,23 @@ import './pages/setting_page.dart';
 import './models/WorkoutRecord.dart'; // WorkoutRecord 모델 import
 import 'notification.dart';
 
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Flutter 엔진과 위젯 바인딩을 초기화
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter(); // Hive를 초기화
-  Hive.registerAdapter(WorkoutRecordAdapter()); // WorkoutRecord 어댑터 등록
-  Hive.registerAdapter(WorkoutTypeAdapter()); // WorkoutType 어댑터 등록
-  Hive.registerAdapter(ExerciseAdapter()); // Exercise 어댑터 등록
+  Hive.registerAdapter(WorkoutRecordAdapter());
+  Hive.registerAdapter(WorkoutTypeAdapter());
+  Hive.registerAdapter(ExerciseAdapter());
   Hive.registerAdapter(SetAdapter());
   // Set 어댑터 등록
-  await Hive.openBox<WorkoutRecord>('workoutRecords'); // workoutRecords 박스 열기
-  await Hive.openBox<WorkoutType>('workoutTypes'); // workoutTypes 박스 열기
-  await Hive.openBox<Exercise>('exercises'); // exercises 박스 열기
-  await Hive.openBox<Set>('sets'); // sets 박스 열기
+  await Hive.openBox<WorkoutRecord>('workoutRecords');
+  await Hive.openBox<WorkoutType>('workoutTypes');
+  await Hive.openBox<Exercise>('exercises');
+  await Hive.openBox<Set>('sets');
   runApp(const MyApp());
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -33,6 +38,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Dohyeon",
         useMaterial3: true,
         dividerColor: Colors.transparent,
+        primaryColor: const Color(0xff0a46ff),
       ),
       debugShowCheckedModeBanner: false,
       home: const BottomNavigation(),

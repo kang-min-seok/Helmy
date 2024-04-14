@@ -40,11 +40,19 @@ class FlutterLocalNotification {
             channelDescription: 'channel description',
             importance: Importance.max,
             priority: Priority.max,
+            sound: RawResourceAndroidNotificationSound('ready'),
+            playSound: true,
             showWhen: false);
 
     const NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails,
-        iOS: DarwinNotificationDetails(badgeNumber: 1));
+        iOS: DarwinNotificationDetails(
+            badgeNumber: 2,
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+            sound: 'ready.aiff'
+        ));
 
     await flutterLocalNotificationsPlugin.show(
         0, '운동 준비!', '자세를 잡으세요.', notificationDetails);
@@ -56,11 +64,19 @@ class FlutterLocalNotification {
         channelDescription: 'channel description',
         importance: Importance.max,
         priority: Priority.max,
+        sound: RawResourceAndroidNotificationSound('start'),
+        playSound: true,
         showWhen: false);
 
     const NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails,
-        iOS: DarwinNotificationDetails(badgeNumber: 1));
+        iOS: DarwinNotificationDetails(
+          badgeNumber: 3,
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          sound: 'start.aiff',
+        ));
 
     await flutterLocalNotificationsPlugin.show(
         0, '운동 시작!', '맛있게 드십쇼!', notificationDetails);

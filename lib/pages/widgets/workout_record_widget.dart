@@ -200,6 +200,9 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                             child: TextFormField(
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Color(0xff0a46ff), width: 2.0),
+                                    ),
                                     hintText: '운동 이름',
                                     contentPadding: EdgeInsets.symmetric(
                                         vertical: 10.0, horizontal: 10.0),
@@ -284,6 +287,9 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                                     child: TextFormField(
                                                       decoration: const InputDecoration(
                                                         border: OutlineInputBorder(),
+                                                        focusedBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(color: Color(0xff0a46ff), width: 2.0),
+                                                        ),
                                                         hintText: '무게',
                                                         contentPadding: EdgeInsets
                                                             .symmetric(
@@ -364,6 +370,9 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                                           child: TextFormField(
                                                             decoration: const InputDecoration(
                                                               border: OutlineInputBorder(),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(color: Color(0xff0a46ff), width: 2.0),
+                                                              ),
                                                               contentPadding: EdgeInsets
                                                                   .symmetric(
                                                                   vertical: 10.0,

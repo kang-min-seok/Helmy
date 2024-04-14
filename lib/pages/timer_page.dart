@@ -2,8 +2,13 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../notification.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+
 class TimerPage extends StatefulWidget {
   const TimerPage({Key? key}) : super(key: key);
+
   @override
   _TimerPageState createState() => _TimerPageState();
 }
@@ -11,8 +16,8 @@ class TimerPage extends StatefulWidget {
 class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
   Timer? _timer;
   AnimationController? _controller;
-  static int minuteSetting = 0;
-  static int secondSetting = 5;
+  static int minuteSetting = 2;
+  static int secondSetting = 0;
   int seconds = (60 * minuteSetting) + secondSetting;
   int maxSeconds = (60 * minuteSetting) + secondSetting;
   bool _isRunning = false;
@@ -28,7 +33,6 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
   }
 
   void _startTimer() {
-
     setState(() {
       _isRunning = true;
       _isCompleted = false;
@@ -38,7 +42,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (seconds > 0) {
-        if(maxSeconds > 25 && seconds == 20){
+        if (maxSeconds > 25 && seconds == 20) {
           FlutterLocalNotification.showNotification();
         }
         setState(() {
@@ -67,66 +71,102 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
 
   void _showTimeSettingModal() {
     showModalBottomSheet(
-        context: context,
-        builder: (BuildContext builder) {
-          return Container(
-            height: MediaQuery.of(context).copyWith().size.height / 3,
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                        child: CupertinoPicker(
-                          itemExtent: 32.0,
-                          onSelectedItemChanged: (int index) {
-                            setState(() {
-                              minuteSetting = index;
-                            });
-                          },
-                          children: List<Widget>.generate(60, (int index) {
-                            return Center(
-                              child: Text('$index'),
-                            );
-                          }),
-                          scrollController: FixedExtentScrollController(
-                            initialItem: minuteSetting,
-                          ),
-                        ),
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery
+              .of(context)
+              .copyWith()
+              .size
+              .height / 3,
+          padding: const EdgeInsets.fromLTRB(5, 5, 5, 20),
+          child: Column(
+            children: <Widget>[
+          Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // "분" 레이블을 고정합니다.
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: EdgeInsets.only(right: 40),
+                        child: Text('분', style: TextStyle(color: Colors.black)),
                       ),
-                      Expanded(
-                        child: CupertinoPicker(
-                          itemExtent: 32.0,
-                          onSelectedItemChanged: (int index) {
-                            setState(() {
-                              secondSetting = index;
-                            });
-                          },
-                          children: List<Widget>.generate(60, (int index) {
-                            return Center(
-                              child: Text('$index'),
-                            );
-                          }),
-                          scrollController: FixedExtentScrollController(
-                            initialItem: secondSetting,
-                          ),
-                        ),
+                    ),
+                    CupertinoPicker(
+                      itemExtent: 32.0,
+                      onSelectedItemChanged: (int index) {
+                        setState(() {
+                          minuteSetting = index;
+                        });
+                      },
+                      children: List<Widget>.generate(11, (int index) {
+                        return Center(child: Text('$index'));
+                      }),
+                      scrollController: FixedExtentScrollController(
+                        initialItem: minuteSetting,
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // "초" 레이블을 고정합니다.
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: EdgeInsets.only(right: 40),
+                        child: Text('초', style: TextStyle(color: Colors.black)),
+                      ),
+                    ),
+                    CupertinoPicker(
+                      itemExtent: 32.0,
+                      onSelectedItemChanged: (int index) {
+                        setState(() {
+                          secondSetting = index;
+                        });
+                      },
+                      children: List<Widget>.generate(60, (int index) {
+                        return Center(child: Text('$index'));
+                      }),
+                      scrollController: FixedExtentScrollController(
+                        initialItem: secondSetting,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+                Container(
+                  width: double.infinity, // Container의 너비를 무한대로 설정하여 가로를 꽉 채웁니다.
+                  child:ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _setTimer();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff0a46ff),
+                    ),
+                    child: const Text(style: TextStyle(
+                    color: Colors.white,
+                    ),'설정'),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _setTimer();
-                  },
-                  child: Text('설정'),
-                )
+
               ],
             ),
           );
-        }
+        },
     );
   }
 
@@ -160,36 +200,42 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             GestureDetector(
-              onTap: _isCompleted ? _startTimer : _isRunning ? null : _showTimeSettingModal,
+              onTap: _isCompleted ? _startTimer : _isRunning
+                  ? null
+                  : _showTimeSettingModal,
               child: AnimatedBuilder(
                 animation: _controller!,
-                builder: (context, child) => SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CircularProgressIndicator(
-                        value: _controller!.value,
-                        valueColor: AlwaysStoppedAnimation(Color(0xFFDEDEDE)),
-                        strokeWidth: 12,
-                        backgroundColor: _isCompleted ? Colors.red : const Color(0xFF0A46FF),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          timerText,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: _isCompleted ? 25 : 50,
-                            fontWeight: FontWeight.bold,
+                builder: (context, child) =>
+                    SizedBox(
+                      width: 300,
+                      height: 300,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CircularProgressIndicator(
+                            value: _controller!.value,
+                            valueColor: AlwaysStoppedAnimation(Color(
+                                0xFFDEDEDE)),
+                            strokeWidth: 12,
+                            backgroundColor: _isCompleted
+                                ? Colors.red
+                                : const Color(0xFF0A46FF),
                           ),
-                        ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              timerText,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: _isCompleted ? 25 : 50,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
               ),
             ),
             SizedBox(height: 50),
@@ -200,7 +246,8 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0A46FF),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 50, vertical: 20),
                   textStyle: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -214,7 +261,8 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 50, vertical: 20),
                   textStyle: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
