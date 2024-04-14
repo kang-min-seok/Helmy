@@ -19,7 +19,7 @@ class ThemeCustom {
     colorScheme: const ColorScheme(
       background: Color.fromARGB(255, 255, 255, 255),
       brightness: Brightness.light,
-      primary: Color(0xff0a46ff),
+      primary: Color.fromARGB(255, 49, 130, 247),
       onPrimary: Color.fromARGB(255, 255, 255, 255),
       secondary: Color.fromARGB(255, 118, 156, 220),
       onSecondary: Color.fromARGB(255, 217, 235, 255),
@@ -32,9 +32,12 @@ class ThemeCustom {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white, // New default background color
-        backgroundColor: const Color(0xff0a46ff), // New default text color
+        backgroundColor: const Color.fromARGB(255, 49, 130, 247), // New default text color
       ),
     ),
+      expansionTileTheme: const ExpansionTileThemeData(
+        iconColor: Colors.black,
+      )
   );
   static ThemeData darkTheme = ThemeData(
     fontFamily: "Dohyeon",
@@ -50,26 +53,35 @@ class ThemeCustom {
         color: Color.fromARGB(255, 255, 255, 255),
         fontSize: 150,
       ),
+      displayMedium: TextStyle(
+        color: Color.fromARGB(255, 195, 195, 195),
+      ),
+      displaySmall: TextStyle(
+        color: Color.fromARGB(255, 195, 195, 195),
+      )
     ),
     colorScheme: ColorScheme(
       background: const Color.fromARGB(255, 38, 38, 38),
       brightness: Brightness.dark,
-      primary: Colors.white,
+      // primary: Colors.white,
+      primary: const Color.fromARGB(255, 49, 130, 247),
       onPrimary: const Color.fromARGB(255, 38, 38, 38),
       secondary: Colors.white,
-      onSecondary: const Color.fromARGB(255, 118, 156, 220),
+      onSecondary: const Color.fromARGB(255, 49, 130, 247),
       error: Colors.red[700]!,
       onError: Colors.black,
-      onBackground: Colors.white,
+      onBackground: const Color.fromARGB(255, 195, 195, 195),
       surface: const Color.fromARGB(255, 50, 50, 50),
       onSurface: Colors.white,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.black, // New default background color
-        backgroundColor: const Color(0xFFDEDEDE), // New default text color
+        foregroundColor: Colors.white, // New default background color
+        backgroundColor: const Color.fromARGB(255, 49, 130, 247), // New default text color
       ),
     ),
-
+    expansionTileTheme: const ExpansionTileThemeData(
+      iconColor: Colors.white,
+    )
   );
 }

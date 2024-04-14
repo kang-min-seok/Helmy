@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage>
                     foregroundColor:
                         _selectedIndex == index ? Colors.white : Colors.black,
                     backgroundColor: _selectedIndex == index
-                        ? const Color(0xFF0A46FF)
+                        ? const Color.fromARGB(255, 49, 130, 247)
                         : const Color(0xFFDEDEDE),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20)),
@@ -291,7 +291,7 @@ class _HomePageState extends State<HomePage>
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewData,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
