@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import './pages/home_page.dart';
@@ -8,6 +7,7 @@ import './pages/setting_page.dart';
 import './models/WorkoutRecord.dart'; // WorkoutRecord 모델 import
 import 'notification.dart';
 import 'themeCustom.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +21,8 @@ void main() async {
   await Hive.openBox<WorkoutType>('workoutTypes');
   await Hive.openBox<Exercise>('exercises');
   await Hive.openBox<Set>('sets');
-
-  runApp(const MyApp());
+  initializeDateFormatting().then((_) => runApp(const MyApp()));
+  //runApp(const MyApp());
 }
 
 
