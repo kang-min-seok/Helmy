@@ -37,8 +37,8 @@ class ThemeCustom {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white, // New default background color
-        backgroundColor: const Color.fromARGB(255, 49, 130, 247), // New default text color
+        foregroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 49, 130, 247),
       ),
     ),
       expansionTileTheme: const ExpansionTileThemeData(
@@ -69,7 +69,6 @@ class ThemeCustom {
     colorScheme: ColorScheme(
       background: const Color.fromARGB(255, 26, 26, 26),
       brightness: Brightness.dark,
-      // primary: Colors.white,
       primary: const Color.fromARGB(255, 49, 130, 247),
       onPrimary: const Color.fromARGB(255, 38, 38, 38),
       secondary: Colors.white,
@@ -82,8 +81,8 @@ class ThemeCustom {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white, // New default background color
-        backgroundColor: const Color.fromARGB(255, 49, 130, 247), // New default text color
+        foregroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 49, 130, 247),
       ),
     ),
     expansionTileTheme: const ExpansionTileThemeData(

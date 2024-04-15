@@ -44,7 +44,6 @@ class _HomePageState extends State<HomePage>
     if (_selectedIndex != 0) {
       String selectedTypeName = tabs[_selectedIndex];
 
-      // Find the WorkoutType with the matching name from the selected tab
       for (var type in allTypes) {
         if (type.name == selectedTypeName) {
           selectedType = type;
@@ -56,13 +55,8 @@ class _HomePageState extends State<HomePage>
       }).toList();
 
     }else {
-      // If no tab is selected, load all records
       workoutRecords = allRecords;
     }
-
-
-
-
 
     setState(() {});
   }
@@ -180,133 +174,140 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            scrolledUnderElevation: 0,
-            collapsedHeight: 100,
-            flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              collapseMode: CollapseMode.pin,
-              titlePadding: EdgeInsets.zero,
-              title: SizedBox(
-                  height: 100,
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("헬미",style: Theme.of(context).textTheme.displayLarge),
-                      const SizedBox(height: 10),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(tabs.length, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  foregroundColor: _selectedIndex == index ? Colors.white : Colors.black,
-                                  backgroundColor: _selectedIndex == index ? const Color.fromARGB(255, 49, 130, 247) : const Color(0xFFDEDEDE),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  elevation: 0,
-                                ),
-                                child: Text(tabs[index]),
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedIndex = index;
-                                    _loadData();
-                                  });
-                                },
+    return SafeArea(
+        bottom: false,
+        left: false,
+        right: false,
+        child: Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                floating: true,
+                scrolledUnderElevation: 0,
+                collapsedHeight: 115,
+                flexibleSpace: FlexibleSpaceBar(
+                    centerTitle: true,
+                    collapseMode: CollapseMode.pin,
+                    titlePadding: EdgeInsets.zero,
+                    title: Container(
+                        height: 115,
+                        padding: EdgeInsets.only(top: 15),
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("헬미",style: Theme.of(context).textTheme.displayLarge),
+                            const SizedBox(height: 10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: List.generate(tabs.length, (index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        foregroundColor: _selectedIndex == index ? Colors.white : Theme.of(context).primaryColor,
+                                        backgroundColor: _selectedIndex == index ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(tabs[index]),
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedIndex = index;
+                                          _loadData();
+                                        });
+                                      },
+                                    ),
+                                  );
+                                }),
                               ),
-                            );
-                          }),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
 
-            ),
-            backgroundColor: Theme.of(context).colorScheme.background,
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                if (index >= workoutRecords.length) return const SizedBox.shrink();
-                final record = workoutRecords[index];
-                return GestureDetector(
-                  onLongPress: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        List<Widget> menuItems = record.isEdit
-                            ? [
-                          ListTile(
-                            leading: const Icon(Icons.date_range),
-                            title: const Text('날짜 변경하기'),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              _selectDate(context, record);
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.delete),
-                            title: const Text('삭제하기'),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              deleteWorkoutRecord(record);
-                            },
-                          ),
-                        ]
-                            : [
-                          ListTile(
-                            leading: const Icon(Icons.edit),
-                            title: const Text('수정하기'),
-                            onTap: () {
-                              setState(() {
-                                record.isEdit = true;
-                                record.save();
-                              });
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.delete),
-                            title: const Text('삭제하기'),
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              deleteWorkoutRecord(record);
-                            },
-                          ),
-                        ];
-                        return SafeArea(
-                          child: Wrap(
-                            children: menuItems,
-                          ),
+
+                ),
+                backgroundColor: Theme.of(context).colorScheme.background,
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                    if (index >= workoutRecords.length) return const SizedBox.shrink();
+                    final record = workoutRecords[index];
+                    return GestureDetector(
+                      onLongPress: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            List<Widget> menuItems = record.isEdit
+                                ? [
+                              ListTile(
+                                leading: const Icon(Icons.date_range),
+                                title: const Text('날짜 변경하기'),
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  _selectDate(context, record);
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.delete),
+                                title: const Text('삭제하기'),
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  deleteWorkoutRecord(record);
+                                },
+                              ),
+                            ]
+                                : [
+                              ListTile(
+                                leading: const Icon(Icons.edit),
+                                title: const Text('수정하기'),
+                                onTap: () {
+                                  setState(() {
+                                    record.isEdit = true;
+                                    record.save();
+                                  });
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.delete),
+                                title: const Text('삭제하기'),
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  deleteWorkoutRecord(record);
+                                },
+                              ),
+                            ];
+                            return SafeArea(
+                              child: Wrap(
+                                children: menuItems,
+                              ),
+                            );
+                          },
                         );
                       },
+                      child: WorkoutRecordWidget(
+                        key: ValueKey(record.id),
+                        record: record,
+                      ),
                     );
                   },
-                  child: WorkoutRecordWidget(
-                    key: ValueKey(record.id),
-                    record: record,
-                  ),
-                );
-              },
-              childCount: workoutRecords.length,
-            ),
+                  childCount: workoutRecords.length,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addNewData,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButton: FloatingActionButton(
+            onPressed: _addNewData,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        ),
     );
   }
 }
