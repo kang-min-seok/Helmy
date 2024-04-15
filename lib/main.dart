@@ -73,16 +73,16 @@ class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 0,
-        leading: null,
-        title: const Text(
-          "헬미",
-          textAlign: TextAlign.center,
-        ),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   titleSpacing: 0,
+      //   leading: null,
+      //   title: const Text(
+      //     "헬미",
+      //     textAlign: TextAlign.center,
+      //   ),
+      //   centerTitle: true,
+      // ),
       body: _getPageWidget(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,

@@ -10,12 +10,18 @@ class ThemeCustom {
     primaryColorLight: const Color.fromARGB(255, 217, 235, 255),
     shadowColor: const Color.fromARGB(255, 87, 87, 87).withOpacity(0.3),
     canvasColor: const Color.fromARGB(255, 255, 255, 255),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(
-        color: Color.fromARGB(255, 0, 0, 0),
-        fontSize: 150,
+      textTheme: const TextTheme(
+          displayLarge: TextStyle(
+            color: Color.fromARGB(255, 0, 0, 0),
+            fontSize: 27,
+          ),
+          displayMedium: TextStyle(
+            color: Color.fromARGB(255, 0, 0, 0),
+          ),
+          displaySmall: TextStyle(
+            color: Color.fromARGB(255, 0, 0, 0),
+          )
       ),
-    ),
     colorScheme: const ColorScheme(
       background: Color.fromARGB(255, 255, 255, 255),
       brightness: Brightness.light,
@@ -26,7 +32,7 @@ class ThemeCustom {
       error: Colors.red,
       onError: Colors.white,
       onBackground: Color.fromARGB(255, 0, 0, 0),
-      surface: Color.fromARGB(255, 255, 255, 255),
+      surface: Color(0xFFEFEFEF),
       onSurface: Color.fromARGB(255, 0, 0, 0),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -47,11 +53,11 @@ class ThemeCustom {
     primaryColorDark: const Color.fromARGB(255, 118, 156, 220),
     primaryColorLight: const Color.fromARGB(255, 145, 157, 170),
     shadowColor: const Color.fromARGB(255, 173, 173, 173).withOpacity(0.3),
-    canvasColor: const Color.fromARGB(255, 0, 0, 0),
+    canvasColor: const Color.fromARGB(255, 38, 38, 38),
     textTheme: const TextTheme(
       displayLarge: TextStyle(
         color: Color.fromARGB(255, 255, 255, 255),
-        fontSize: 150,
+        fontSize: 27,
       ),
       displayMedium: TextStyle(
         color: Color.fromARGB(255, 195, 195, 195),
@@ -61,7 +67,7 @@ class ThemeCustom {
       )
     ),
     colorScheme: ColorScheme(
-      background: const Color.fromARGB(255, 38, 38, 38),
+      background: const Color.fromARGB(255, 26, 26, 26),
       brightness: Brightness.dark,
       // primary: Colors.white,
       primary: const Color.fromARGB(255, 49, 130, 247),

@@ -14,8 +14,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   List<WorkoutRecord> workoutRecords = [];
-  int _selectedIndex = -1;
-  List<String> tabs = ['하체', '가슴', '등', '어깨', '복근', '팔'];
+  int _selectedIndex = 0;
+  List<String> tabs = ['전체','하체', '가슴', '등', '어깨', '복근', '팔'];
   bool dataLoaded = false;
 
   @override
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage>
     });
 
     WorkoutType? selectedType;
-    if (_selectedIndex != -1) {
+    if (_selectedIndex != 0) {
       String selectedTypeName = tabs[_selectedIndex];
 
       // Find the WorkoutType with the matching name from the selected tab
@@ -181,59 +181,69 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leadingWidth: 0,
-        backgroundColor: Colors.transparent,// Removes the leading space
-        title: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: List.generate(tabs.length, (index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                // Control spacing between buttons
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    foregroundColor:
-                        _selectedIndex == index ? Colors.white : Colors.black,
-                    backgroundColor: _selectedIndex == index
-                        ? const Color.fromARGB(255, 49, 130, 247)
-                        : const Color(0xFFDEDEDE),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    elevation: 0,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            scrolledUnderElevation: 0,
+            collapsedHeight: 100,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: true,
+              collapseMode: CollapseMode.pin,
+              titlePadding: EdgeInsets.zero,
+              title: SizedBox(
+                  height: 100,
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text("헬미",style: Theme.of(context).textTheme.displayLarge),
+                      const SizedBox(height: 10),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(tabs.length, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  foregroundColor: _selectedIndex == index ? Colors.white : Colors.black,
+                                  backgroundColor: _selectedIndex == index ? const Color.fromARGB(255, 49, 130, 247) : const Color(0xFFDEDEDE),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  elevation: 0,
+                                ),
+                                child: Text(tabs[index]),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedIndex = index;
+                                    _loadData();
+                                  });
+                                },
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(tabs[index]),
-                  onPressed: () {
-                    setState(() {
-                      if (_selectedIndex == index) {
-                        _selectedIndex = -1;
-                      } else {
-                        _selectedIndex = index;
-                      }
-                      _loadData();
-                    });
-                  },
                 ),
-              );
-            }),
+
+            ),
+            backgroundColor: Theme.of(context).colorScheme.background,
           ),
-        ),
-      ),
-      body: ListView.builder(
-        itemCount: workoutRecords.length,
-        itemBuilder: (context, index) {
-          if (index >= workoutRecords.length) {
-            return const SizedBox.shrink();
-          }
-          final record = workoutRecords[index];
-          return GestureDetector(
-            onLongPress: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) {
-                  List<Widget> menuItems = record.isEdit
-                      ? [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                if (index >= workoutRecords.length) return const SizedBox.shrink();
+                final record = workoutRecords[index];
+                return GestureDetector(
+                  onLongPress: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        List<Widget> menuItems = record.isEdit
+                            ? [
                           ListTile(
                             leading: const Icon(Icons.date_range),
                             title: const Text('날짜 변경하기'),
@@ -251,7 +261,7 @@ class _HomePageState extends State<HomePage>
                             },
                           ),
                         ]
-                      : [
+                            : [
                           ListTile(
                             leading: const Icon(Icons.edit),
                             title: const Text('수정하기'),
@@ -272,21 +282,24 @@ class _HomePageState extends State<HomePage>
                             },
                           ),
                         ];
-
-                  return SafeArea(
-                    child: Wrap(
-                      children: menuItems,
-                    ),
-                  );
-                },
-              );
-            },
-            child: WorkoutRecordWidget(
-              key: ValueKey(record.id),
-              record: record,
+                        return SafeArea(
+                          child: Wrap(
+                            children: menuItems,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: WorkoutRecordWidget(
+                    key: ValueKey(record.id),
+                    record: record,
+                  ),
+                );
+              },
+              childCount: workoutRecords.length,
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewData,

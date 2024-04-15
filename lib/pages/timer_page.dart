@@ -70,6 +70,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
   void _showTimeSettingModal() {
     showModalBottomSheet(
       context: context,
+      elevation: 0,
       builder: (BuildContext context) {
         return Container(
           height: MediaQuery
@@ -93,7 +94,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                       alignment: Alignment.centerRight,
                       child: Container(
                         padding: EdgeInsets.only(right: 40),
-                        child: Text('분', style: TextStyle(color: Colors.black)),
+                        child: Text('분'),
                       ),
                     ),
                     CupertinoPicker(
@@ -122,7 +123,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                       alignment: Alignment.centerRight,
                       child: Container(
                         padding: EdgeInsets.only(right: 40),
-                        child: Text('초', style: TextStyle(color: Colors.black)),
+                        child: Text('초'),
                       ),
                     ),
                     CupertinoPicker(
@@ -152,12 +153,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                       Navigator.pop(context);
                       _setTimer();
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff0a46ff),
-                    ),
-                    child: const Text(style: TextStyle(
-                    color: Colors.white,
-                    ),'설정'),
+                    child: const Text('설정'),
                   ),
                 ),
 
@@ -193,6 +189,11 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
         : "${seconds ~/ 60} : ${(seconds % 60).toString().padLeft(2, '0')}";
 
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        title: Text("타이머",style: Theme.of(context).textTheme.displayLarge),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -212,22 +213,20 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                         children: [
                           CircularProgressIndicator(
                             value: _controller!.value,
-                            valueColor: AlwaysStoppedAnimation(Color(
+                            valueColor: const AlwaysStoppedAnimation(Color(
                                 0xFFDEDEDE)),
                             strokeWidth: 12,
                             backgroundColor: _isCompleted
                                 ? Colors.red
-                                : const Color(0xFF0A46FF),
+                                : const Color.fromARGB(255, 49, 130, 247),
                           ),
                           Align(
                             alignment: Alignment.center,
                             child: Text(
                               timerText,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.black,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 fontSize: _isCompleted ? 25 : 50,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -242,7 +241,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
                 onPressed: _startTimer,
                 child: Text('운동 시작'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0A46FF),
+                  backgroundColor: const Color.fromARGB(255, 49, 130, 247),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                       horizontal: 50, vertical: 20),

@@ -9,7 +9,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool _isDark = false;
+  //bool _isDark = false;
   bool _isNotification = false;
 
   @override
@@ -22,7 +22,9 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Settings"),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.background,
+          title: Text("설정",style: Theme.of(context).textTheme.displayLarge),
         ),
         body: Center(
           child: Container(
@@ -30,20 +32,20 @@ class _SettingPageState extends State<SettingPage> {
             child: ListView(
               children: [
                 _SingleSection(
-                  title: "General",
+                  title: "환경",
                   children: [
+                    // _CustomListTile(
+                    //     title: "다크모드",
+                    //     icon: Icons.dark_mode_outlined,
+                    //     trailing: Switch(
+                    //         value: _isDark,
+                    //         onChanged: (value) {
+                    //           setState(() {
+                    //             _isDark = value;
+                    //           });
+                    //         })),
                     _CustomListTile(
-                        title: "다크모드",
-                        icon: Icons.dark_mode_outlined,
-                        trailing: Switch(
-                            value: _isDark,
-                            onChanged: (value) {
-                              setState(() {
-                                _isDark = value;
-                              });
-                            })),
-                    _CustomListTile(
-                        title: "알림",
+                        title: "타이머 알림",
                         icon: Icons.notifications_none_rounded,
                         trailing: Switch(
                             value: _isNotification,
