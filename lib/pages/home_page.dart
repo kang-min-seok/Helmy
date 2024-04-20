@@ -40,23 +40,21 @@ class _HomePageState extends State<HomePage>
       return dateB.compareTo(dateA);
     });
 
-    WorkoutType? selectedType;
+    List<int> selectedTypeIds = []; // 유형의 ID를 저장할 리스트
     if (_selectedIndex != 0) {
       String selectedTypeName = tabs[_selectedIndex];
+      // 선택된 탭에 해당하는 모든 유형을 찾아 selectedTypeIds에 추가
+      selectedTypeIds = allTypes.where((type) => type.name == selectedTypeName).map((type) => type.id).toList();
 
-      for (var type in allTypes) {
-        if (type.name == selectedTypeName) {
-          selectedType = type;
-          break;
-        }
-      }
+      // 선택된 유형 ID에 해당하는 모든 운동 기록을 필터링
       workoutRecords = allRecords.where((record) {
-        return record.isEdit || (selectedType != null && record.workoutTypeIds.contains(selectedType.id));
+        return record.isEdit || (selectedTypeIds.isNotEmpty && record.workoutTypeIds.any((id) => selectedTypeIds.contains(id)));
       }).toList();
-
-    }else {
+    } else {
       workoutRecords = allRecords;
     }
+
+
 
     setState(() {});
   }
