@@ -19,10 +19,15 @@ class _CalendarPageState extends State<CalendarPage> {
   late DateTime _focusedDay;
 
   Map<DateTime, List<WorkoutRecord>> _events = {};
+  final ScrollController _scrollController = ScrollController();
+  double _lastScrollOffset = 0;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime nowTime = DateTime.now();
 
   void loadWorkoutRecords() async {
     final box = await Hive.openBox<WorkoutRecord>('workoutRecords');
     List<WorkoutRecord> records = box.values.toList();
+    DateTime today = DateTime(nowTime.year, nowTime.month, nowTime.day);
 
     Map<DateTime, List<WorkoutRecord>> tempEvents = {};
     for (WorkoutRecord record in records) {
@@ -36,6 +41,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     setState(() {
       _events = tempEvents;
+      _selectedDay = today;
     });
   }
 
@@ -45,14 +51,65 @@ class _CalendarPageState extends State<CalendarPage> {
     _selectedDay = DateTime.now();
     _focusedDay = DateTime.now();
     loadWorkoutRecords();
+    _scrollController.addListener(_scrollListener);
   }
+
+  // void _scrollListener() {
+  //   double currentOffset = _scrollController.offset;
+  //   if (currentOffset > _lastScrollOffset + 30 && _calendarFormat != CalendarFormat.twoWeeks) {
+  //     // Scroll down
+  //     setState(() {
+  //       _calendarFormat = CalendarFormat.twoWeeks;
+  //     });
+  //   } else if (currentOffset < _lastScrollOffset - 30 && _calendarFormat != CalendarFormat.month) {
+  //     // Scroll up
+  //     setState(() {
+  //       _calendarFormat = CalendarFormat.month;
+  //     });
+  //   }
+  //   _lastScrollOffset = currentOffset;
+  // }
+
+  void _scrollListener() {
+    double currentOffset = _scrollController.offset;
+
+    // Calculate scroll direction and magnitude
+    double delta = currentOffset - _lastScrollOffset;
+    bool isScrollingDown = delta - 20 > 0 && currentOffset > 100; // Only consider changing format if scrolled significantly down
+    bool isScrollingUp = delta + 20 < 0 && currentOffset < _scrollController.position.maxScrollExtent - 100; // Only consider changing format if scrolled significantly up
+
+    if (isScrollingDown && _calendarFormat != CalendarFormat.twoWeeks) {
+      // Scroll down - change to two weeks format if not already
+      setState(() {
+        _calendarFormat = CalendarFormat.twoWeeks;
+      });
+    } else if (isScrollingUp && _calendarFormat != CalendarFormat.month) {
+      // Scroll up - change to month format if not already
+      setState(() {
+        _calendarFormat = CalendarFormat.month;
+      });
+    }
+
+    // Update last scroll position
+    _lastScrollOffset = currentOffset;
+  }
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
+    List<WorkoutRecord> selectedRecords = _events[_selectedDay] ?? [];
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.background,
+        scrolledUnderElevation: 0,
         title: Text("캘린더",style: Theme.of(context).textTheme.displayLarge),
       ),
       body: Column(
@@ -62,13 +119,21 @@ class _CalendarPageState extends State<CalendarPage> {
             firstDay: DateTime.utc(2010, 1, 1),
             lastDay: DateTime.utc(2040, 12, 31),
             focusedDay: _focusedDay,
-            calendarFormat: CalendarFormat.month,
+            calendarFormat: _calendarFormat,
+            onFormatChanged: (format) {
+              if (_calendarFormat != format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              }
+            },
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
             onDaySelected: (selectedDay, focusedDay) {
+              DateTime selectDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
               setState(() {
-                _selectedDay = selectedDay;
+                _selectedDay = selectDay;
               });
             },
             eventLoader: (date) {
@@ -83,10 +148,8 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
             calendarStyle : CalendarStyle(
               outsideDaysVisible: false,
-              todayDecoration: const BoxDecoration(),
+              isTodayHighlighted: false,
               todayTextStyle: TextStyle(color: Theme.of(context).primaryColor),
-              markersAlignment : Alignment.center,
-              markersMaxCount: 1,
               markerDecoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.onBackground,
                 shape: BoxShape.circle,
@@ -103,14 +166,44 @@ class _CalendarPageState extends State<CalendarPage> {
                 shape: BoxShape.circle,
 
               ),
-              selectedTextStyle : TextStyle(color: Theme.of(context).primaryColor),
-              cellMargin: const EdgeInsets.fromLTRB(0, 5, 0, 13),
+              selectedTextStyle : const TextStyle(color: Colors.white),
+              cellMargin: const EdgeInsets.fromLTRB(0, 5, 0, 25),
+              cellPadding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
               cellAlignment : Alignment.topCenter,
+              markerMargin: const EdgeInsets.only(top: 5),
+              markersAlignment : Alignment.bottomCenter,
+              markersMaxCount: 1,
             ),
             daysOfWeekStyle: DaysOfWeekStyle(
               weekdayStyle: TextStyle(color: Theme.of(context).primaryColor), // 평일 스타일
             ),
             daysOfWeekHeight: 30,
+            rowHeight: 60,
+          ),
+          Expanded(
+              child: selectedRecords.isNotEmpty ? ListView.builder(
+                controller: _scrollController,
+                itemCount: selectedRecords.length,
+                itemBuilder: (context, index) {
+                  return WorkoutRecordWidget(
+                    key: ValueKey(selectedRecords[index].id),
+                    record: selectedRecords[index],
+                  );
+                },
+              ) : Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.hotel, color: Colors.grey ,size: 100),
+                    Text(
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 20
+                        ),
+                        "휴식 데이"
+                    )
+                  ],
+                ),
+              )
           ),
         ],
       ),

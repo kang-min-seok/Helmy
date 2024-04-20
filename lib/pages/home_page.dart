@@ -232,7 +232,21 @@ class _HomePageState extends State<HomePage>
                 ),
                 backgroundColor: Theme.of(context).colorScheme.background,
               ),
-              SliverList(
+              workoutRecords.isEmpty
+                  ? SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.fitness_center, size: 70, color: Colors.grey),
+                      SizedBox(height: 20,),
+                      Text('추가된 운동 기록이 없습니다.', style: TextStyle(fontSize: 20, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+              )
+                  : SliverList(
                 delegate: SliverChildBuilderDelegate(
                       (context, index) {
                     if (index >= workoutRecords.length) return const SizedBox.shrink();
@@ -296,7 +310,7 @@ class _HomePageState extends State<HomePage>
                       ),
                     );
                   },
-                  childCount: workoutRecords.length,
+                  childCount: workoutRecords.isEmpty ? 1 : workoutRecords.length,
                 ),
               ),
             ],

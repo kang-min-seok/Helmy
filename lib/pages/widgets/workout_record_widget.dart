@@ -173,7 +173,7 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                         Exercise exercise = exercises[type.id]![exerciseIndex];
                         TextEditingController nameController = TextEditingController(
                             text: exercise.name);
-                        DismissDirection dismissDirection = exerciseIndex == 0
+                        DismissDirection dismissDirection = exercises[type.id]!.length <= 1
                             ? DismissDirection.none
                             : DismissDirection.endToStart;
                         return ListTile(
@@ -239,7 +239,7 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                   set.id,
                                       () => set.reps.map((rep) => TextEditingController(text: rep)).toList(),
                                 );
-                                DismissDirection dismissDirection = setsIndex == 0
+                                DismissDirection dismissDirection = sets[exercise.id]!.length <= 1
                                     ? DismissDirection.none
                                     : DismissDirection.endToStart;
                                 return Dismissible(
@@ -388,15 +388,14 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                                           ),
                                                         );
                                                       } else {
-                                                        return Row(
-                                                          children: [
-                                                            Text(updatedSet!
-                                                                .reps[repEditIndex],
+                                                        return Expanded(
+                                                          flex: 1,
+                                                          child:
+                                                            Text(updatedSet!.reps[repEditIndex],
                                                                 style: const TextStyle(
                                                                   fontSize: 15,
                                                                 )
                                                             ),
-                                                          ],
                                                         );
                                                       }
                                                     }

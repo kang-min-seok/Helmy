@@ -8,7 +8,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  //bool _isDark = false;
+  bool _isDark = false;
   bool _isNotification = false;
 
   @override
@@ -33,16 +33,16 @@ class _SettingPageState extends State<SettingPage> {
                 _SingleSection(
                   title: "환경",
                   children: [
-                    // _CustomListTile(
-                    //     title: "다크모드",
-                    //     icon: Icons.dark_mode_outlined,
-                    //     trailing: Switch(
-                    //         value: _isDark,
-                    //         onChanged: (value) {
-                    //           setState(() {
-                    //             _isDark = value;
-                    //           });
-                    //         })),
+                    _CustomListTile(
+                        title: "다크모드",
+                        icon: Icons.dark_mode_outlined,
+                        trailing: Switch(
+                            value: _isDark,
+                            onChanged: (value) {
+                              setState(() {
+                                _isDark = value;
+                              });
+                            })),
                     _CustomListTile(
                         title: "타이머 알림",
                         icon: Icons.notifications_none_rounded,
