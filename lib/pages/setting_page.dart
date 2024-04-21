@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'on_boarding_page.dart';
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
 
@@ -56,11 +56,19 @@ class _SettingPageState extends State<SettingPage> {
                   ],
                 ),
                 const Divider(),
-                const _SingleSection(
+                _SingleSection(
                   children: [
                     _CustomListTile(
                         title: "사용설명",
-                        icon: Icons.help_outline_rounded),
+                        icon: Icons.help_outline_rounded,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const OnBoardingPage(),
+                            ),
+                          );
+                        },
+                    ),
                     _CustomListTile(
                         title: "About", icon: Icons.info_outline_rounded),
                   ],
@@ -77,9 +85,14 @@ class _CustomListTile extends StatelessWidget {
   final String title;
   final IconData icon;
   final Widget? trailing;
-  const _CustomListTile(
-      {Key? key, required this.title, required this.icon, this.trailing})
-      : super(key: key);
+  final VoidCallback? onTap;
+  const _CustomListTile({
+    Key? key,
+    required this.title,
+    required this.icon,
+    this.trailing,
+    this.onTap, // onTap 추가
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +100,7 @@ class _CustomListTile extends StatelessWidget {
       title: Text(title),
       leading: Icon(icon),
       trailing: trailing,
-      onTap: () {},
+      onTap: onTap, // onTap 할당
     );
   }
 }

@@ -8,6 +8,8 @@ import './models/WorkoutRecord.dart'; // WorkoutRecord 모델 import
 import 'notification.dart';
 import 'themeCustom.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import './pages/on_boarding_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,16 +38,39 @@ class MyApp extends StatefulWidget  {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool? isOnboardingComplete;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboarding();
+  }
+
+  void _checkOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isOnboardingComplete = prefs.getBool('onboarding_complete') ?? false;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    if (isOnboardingComplete == null) {
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()), // 초기화 중 로딩 인디케이터
+        ),
+      );
+    }
+
     return MaterialApp(
       title: '헬미',
       themeMode: ThemeMode.system,
       theme: ThemeCustom.lightTheme,
       darkTheme: ThemeCustom.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: const BottomNavigation(),
+      home: isOnboardingComplete! ? const BottomNavigation() : const OnBoardingPage(),
     );
   }
 }
