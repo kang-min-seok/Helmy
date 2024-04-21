@@ -239,9 +239,11 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                   set.id,
                                       () => set.reps.map((rep) => TextEditingController(text: rep)).toList(),
                                 );
-                                DismissDirection dismissDirection = sets[exercise.id]!.length <= 1
+                                DismissDirection dismissDirection;
+
+                                isEdit ? dismissDirection = sets[exercise.id]!.length <= 1
                                     ? DismissDirection.none
-                                    : DismissDirection.endToStart;
+                                    : DismissDirection.endToStart : dismissDirection = DismissDirection.none;
                                 return Dismissible(
                                     key: UniqueKey(),
                                     direction: dismissDirection,
