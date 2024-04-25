@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import '../notification.dart';
 
 
@@ -16,14 +17,33 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
   AnimationController? _controller;
   static int minuteSetting = 2;
   static int secondSetting = 0;
-  int seconds = (60 * minuteSetting) + secondSetting;
+  static int seconds = (60 * minuteSetting) + secondSetting;
   int maxSeconds = (60 * minuteSetting) + secondSetting;
-  bool _isRunning = false;
-  bool _isCompleted = false;
+  static bool _isRunning = false;
+  static bool _isCompleted = false;
+  final service = FlutterBackgroundService();
 
   @override
   void initState() {
     super.initState();
+    service.on('update').listen((event) {
+      if (!mounted) return;
+      final secs = event!['seconds'];
+      print("현재 초(timer): $secs초");
+      if (secs != null) {
+        setState(() {
+          seconds = secs;
+        });
+      }
+    });
+    service.on('timerComplete').listen((event) {
+      if (!mounted) return;
+      setState(() {
+        _isCompleted = true;
+        _controller?.reset();
+      });
+
+    });
     _controller = AnimationController(
       duration: Duration(seconds: maxSeconds),
       vsync: this,
@@ -34,36 +54,24 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
     setState(() {
       _isRunning = true;
       _isCompleted = false;
-      seconds = maxSeconds;
     });
-    _controller?.forward(from: 0);
-    _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (seconds > 0) {
-        if (maxSeconds > 25 && seconds == 20) {
-          FlutterLocalNotification.showNotification();
-        }
-        setState(() {
-          seconds--;
-        });
-      } else {
-        FlutterLocalNotification.showExerciseStartNotification();
-        _timer?.cancel();
-        setState(() {
-          _isCompleted = true;
-          _controller?.reset();
-        });
-      }
-    });
+    service.invoke('startTimer', {'duration': maxSeconds});
   }
 
   void _resetTimer() {
-    _timer?.cancel();
     setState(() {
       seconds = maxSeconds;
-      _controller?.reset();
       _isRunning = false;
       _isCompleted = false;
+    });
+    service.invoke('stopTimer');
+  }
+
+  void _setTimer() {
+    final newMaxSeconds = (60 * minuteSetting) + secondSetting;
+    setState(() {
+      maxSeconds = newMaxSeconds;
+      seconds = newMaxSeconds;
     });
   }
 
@@ -163,17 +171,6 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
         },
     );
   }
-
-  // 새로운 시간 설정을 기반으로 타이머를 리셋하는 함수입니다.
-  void _setTimer() {
-    final newMaxSeconds = (60 * minuteSetting) + secondSetting;
-    setState(() {
-      maxSeconds = newMaxSeconds;
-      seconds = newMaxSeconds;
-      _controller?.duration = Duration(seconds: newMaxSeconds);
-    });
-  }
-
 
   @override
   void dispose() {

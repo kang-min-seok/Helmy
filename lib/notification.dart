@@ -79,6 +79,6 @@ class FlutterLocalNotification {
         ));
 
     await flutterLocalNotificationsPlugin.show(
-        0, '운동 시작!', '맛있게 드십쇼!', notificationDetails);
+        0, '운동 시작!', '드가자잇!', notificationDetails);
   }
 }

@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+
 import './pages/home_page.dart';
 import './pages/calendar_page.dart';
 import './pages/timer_page.dart';
@@ -23,11 +28,69 @@ void main() async {
   await Hive.openBox<WorkoutType>('workoutTypes');
   await Hive.openBox<Exercise>('exercises');
   await Hive.openBox<Set>('sets');
+
+  await initializeService();
   initializeDateFormatting().then((_) => runApp(const MyApp()));
   //runApp(const MyApp());
 }
 
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      autoStart: true,
+      isForegroundMode: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      autoStart: true,
+      onForeground: onStart,
+      onBackground: onIosBackground,
+    ),
+  );
+  print("서비스 구성 및 시작");
+  service.startService();
+}
 
+@pragma('vm:entry-point')
+Future<bool> onIosBackground(ServiceInstance service) async {
+  return true;
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  print("onStart 호출됨");
+  Timer? currentTimer;
+
+  service.on('startTimer').listen((event) {
+    print("타이머 실행");
+    int duration = event?['duration'] as int;
+    // 기존 타이머가 활성화되어 있으면 취소
+    currentTimer?.cancel();
+
+    // 새 타이머 시작
+    currentTimer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      print("현재초: $duration");
+      if (duration > 0) {
+        duration--;
+        service.invoke('update', {"seconds": duration});
+        if (duration == 20) {
+          FlutterLocalNotification.showNotification();
+        }
+      } else {
+        FlutterLocalNotification.showExerciseStartNotification();
+        timer.cancel();
+        service.invoke('timerComplete', {});
+      }
+    });
+  });
+
+  service.on('stopTimer').listen((event) {
+    // 타이머 취소
+    print("이건 도냐?");
+    currentTimer?.cancel();
+  });
+}
 
 class MyApp extends StatefulWidget  {
   const MyApp({super.key});

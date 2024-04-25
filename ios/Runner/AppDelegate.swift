@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import flutter_background_service_ios
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -10,6 +11,9 @@ import Flutter
   if #available(iOS 10.0, *){
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
   }
+
+    SwiftFlutterBackgroundServicePlugin.taskIdentifier = "your.custom.task.identifier"
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
