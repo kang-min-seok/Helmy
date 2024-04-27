@@ -13,7 +13,6 @@ class TimerPage extends StatefulWidget {
 }
 
 class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
-  Timer? _timer;
   AnimationController? _controller;
   static int minuteSetting = 2;
   static int secondSetting = 0;
@@ -22,21 +21,28 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
   static bool _isRunning = false;
   static bool _isCompleted = false;
   final service = FlutterBackgroundService();
+  static int tempSecond = seconds;
+
+  static StreamSubscription? updateSubscription;
+  static StreamSubscription? completeSubscription;
 
   @override
   void initState() {
     super.initState();
-    service.on('update').listen((event) {
-      if (!mounted) return;
+
+    updateSubscription?.cancel();
+    completeSubscription?.cancel();
+    updateSubscription = service.on('update').listen((event) {
       final secs = event!['seconds'];
-      print("현재 초(timer): $secs초");
+      tempSecond = secs;
+      if (!mounted) return;
       if (secs != null) {
         setState(() {
           seconds = secs;
         });
       }
     });
-    service.on('timerComplete').listen((event) {
+    completeSubscription = service.on('timerComplete').listen((event) {
       if (!mounted) return;
       setState(() {
         _isCompleted = true;
@@ -44,6 +50,15 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
       });
 
     });
+
+    setState(() {
+      if (_isRunning) {
+        seconds = tempSecond;
+      } else {
+        seconds = maxSeconds;
+      }
+    });
+
     _controller = AnimationController(
       duration: Duration(seconds: maxSeconds),
       vsync: this,
@@ -174,7 +189,6 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _timer?.cancel();
     _controller?.dispose();
     super.dispose();
   }

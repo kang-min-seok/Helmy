@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -53,26 +52,18 @@ Future<void> initializeService() async {
 }
 
 @pragma('vm:entry-point')
-Future<bool> onIosBackground(ServiceInstance service) async {
-  return true;
-}
-
-@pragma('vm:entry-point')
-void onStart(ServiceInstance service) async {
-  print("onStart 호출됨");
+void onStart(ServiceInstance service) {
   Timer? currentTimer;
 
   service.on('startTimer').listen((event) {
-    print("타이머 실행");
     int duration = event?['duration'] as int;
-    // 기존 타이머가 활성화되어 있으면 취소
     currentTimer?.cancel();
 
     // 새 타이머 시작
     currentTimer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      print("현재초: $duration");
       if (duration > 0) {
         duration--;
+        print("현재초: $duration");
         service.invoke('update', {"seconds": duration});
         if (duration == 20) {
           FlutterLocalNotification.showNotification();
@@ -86,11 +77,16 @@ void onStart(ServiceInstance service) async {
   });
 
   service.on('stopTimer').listen((event) {
-    // 타이머 취소
-    print("이건 도냐?");
     currentTimer?.cancel();
   });
 }
+
+
+@pragma('vm:entry-point')
+Future<bool> onIosBackground(ServiceInstance service) async {
+  return true;
+}
+
 
 class MyApp extends StatefulWidget  {
   const MyApp({super.key});

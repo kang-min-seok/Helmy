@@ -12,7 +12,7 @@ import flutter_background_service_ios
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
   }
 
-    SwiftFlutterBackgroundServicePlugin.taskIdentifier = "your.custom.task.identifier"
+    SwiftFlutterBackgroundServicePlugin.taskIdentifier = "com.minseok.helmy"
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
