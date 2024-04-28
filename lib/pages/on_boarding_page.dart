@@ -57,9 +57,24 @@ class OnBoardingPage extends StatelessWidget {
       onDone: ()async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('onboarding_complete', true);
+
+        ThemeMode themeMode = ThemeMode.system;
+        final String? savedThemeMode = prefs.getString('themeMode');
+
+        if (savedThemeMode == null) {
+          themeMode = ThemeMode.system;
+        } else if (savedThemeMode == "light") {
+          themeMode = ThemeMode.light;
+        } else if (savedThemeMode == "dark") {
+          themeMode = ThemeMode.dark;
+        } else if (savedThemeMode == "system") {
+          themeMode = ThemeMode.system;
+        }
+
+
         Navigator.of(context).push(
           MaterialPageRoute(
-              builder: (context) => const MyApp()),
+              builder: (context) => MyApp(themeMode: themeMode)),
         );
       },
       next: const Icon(Icons.arrow_forward_ios),

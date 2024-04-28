@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:helmy/theme_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:provider/provider.dart';
 
 import './pages/home_page.dart';
 import './pages/calendar_page.dart';
@@ -17,6 +19,21 @@ import './pages/on_boarding_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  ThemeMode themeMode = ThemeMode.system;
+  final String? savedThemeMode = prefs.getString('themeMode');
+
+  if (savedThemeMode == null) {
+    themeMode = ThemeMode.system;
+  } else if (savedThemeMode == "light") {
+    themeMode = ThemeMode.light;
+  } else if (savedThemeMode == "dark") {
+    themeMode = ThemeMode.dark;
+  } else if (savedThemeMode == "system") {
+    themeMode = ThemeMode.system;
+  }
+
   await Hive.initFlutter(); // Hive를 초기화
   Hive.registerAdapter(WorkoutRecordAdapter());
   Hive.registerAdapter(WorkoutTypeAdapter());
@@ -29,7 +46,7 @@ void main() async {
   await Hive.openBox<Set>('sets');
 
   await initializeService();
-  initializeDateFormatting().then((_) => runApp(const MyApp()));
+  initializeDateFormatting().then((_) => runApp(MyApp(themeMode: themeMode)));
   //runApp(const MyApp());
 }
 
@@ -81,19 +98,21 @@ void onStart(ServiceInstance service) {
   });
 }
 
-
 @pragma('vm:entry-point')
 Future<bool> onIosBackground(ServiceInstance service) async {
   return true;
 }
 
+class MyApp extends StatefulWidget {
+  final themeMode;
 
-class MyApp extends StatefulWidget  {
-  const MyApp({super.key});
+  const MyApp({
+    Key? key,
+    required this.themeMode,
+  }) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
-
 }
 
 class _MyAppState extends State<MyApp> {
@@ -112,7 +131,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (isOnboardingComplete == null) {
@@ -123,14 +141,23 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    return MaterialApp(
-      title: '헬미',
-      themeMode: ThemeMode.system,
-      theme: ThemeCustom.lightTheme,
-      darkTheme: ThemeCustom.darkTheme,
-      debugShowCheckedModeBanner: false,
-      home: isOnboardingComplete! ? const BottomNavigation() : const OnBoardingPage(),
-    );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+              create: (_) => ThemeProvider(initThemeMode: widget.themeMode)),
+        ],
+        builder: (context, _) {
+          return MaterialApp(
+            title: '헬미',
+            themeMode: Provider.of<ThemeProvider>(context).themeMode,
+            theme: ThemeCustom.lightTheme,
+            darkTheme: ThemeCustom.darkTheme,
+            debugShowCheckedModeBanner: false,
+            home: isOnboardingComplete!
+                ? const BottomNavigation()
+                : const OnBoardingPage(),
+          );
+        });
   }
 }
 
@@ -152,7 +179,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {

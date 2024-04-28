@@ -9,7 +9,7 @@
             android:stopWithTask="false" />
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="WhatForegroundServiceTypeDoYouWant"
+            android:foregroundServiceType="dataSync"
             />
         <activity
             android:name=".MainActivity"

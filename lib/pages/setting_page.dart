@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'on_boarding_page.dart';
+import 'design_setting_page.dart';
+
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
 
@@ -8,15 +11,37 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool _isDark = false;
   bool _isNotification = false;
+  static String themeText = "기기 테마";
 
   @override
   void initState() {
+    getThemeText();
     super.initState();
   }
 
+  void getThemeText() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? savedThemeMode = prefs.getString('themeMode');
 
+    if (savedThemeMode == null) {
+      setState(() {
+        themeText = "기기 테마";
+      });
+    } else if (savedThemeMode == "light") {
+      setState(() {
+        themeText = "밝은 테마";
+      });
+    } else if (savedThemeMode == "dark") {
+      setState(() {
+        themeText = "어두운 테마";
+      });
+    } else if (savedThemeMode == "system") {
+      setState(() {
+        themeText = "기기 테마";
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,15 +59,21 @@ class _SettingPageState extends State<SettingPage> {
                   title: "환경",
                   children: [
                     _CustomListTile(
-                        title: "다크모드",
-                        icon: Icons.dark_mode_outlined,
-                        trailing: Switch(
-                            value: _isDark,
-                            onChanged: (value) {
-                              setState(() {
-                                _isDark = value;
-                              });
-                            })),
+                        title: "테마",
+                        icon: Icons.format_paint_outlined,
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const DesignSettingPage()),
+                          ).then((_) {
+                            getThemeText();
+                          });
+                        },
+                      trailing: Text(
+                        themeText,
+                        style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                    ),
                     _CustomListTile(
                         title: "타이머 알림",
                         icon: Icons.notifications_none_rounded,
@@ -69,8 +100,6 @@ class _SettingPageState extends State<SettingPage> {
                           );
                         },
                     ),
-                    _CustomListTile(
-                        title: "About", icon: Icons.info_outline_rounded),
                   ],
                 ),
               ],
