@@ -67,6 +67,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
 
   void _startTimer() {
     setState(() {
+      seconds = maxSeconds;
       _isRunning = true;
       _isCompleted = false;
     });

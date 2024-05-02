@@ -28,7 +28,7 @@ class _DesignSettingPageState extends State<DesignSettingPage> {
                 title: "디자인",
                 children: [
                   _CustomListTile(
-                    title: "기기 테마 사용",
+                    title: "기기 테마",
                     icon: Icons.perm_device_info_rounded,
                     onTap: () {
                       final themeProvider =

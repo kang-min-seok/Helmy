@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FlutterLocalNotification {
   FlutterLocalNotification._();
@@ -35,6 +36,9 @@ class FlutterLocalNotification {
   }
 
   static Future<void> showNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool? savedIsNotification = prefs.getBool('isNotification');
+
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails('channel id', 'channel name',
             channelDescription: 'channel description',
@@ -53,12 +57,19 @@ class FlutterLocalNotification {
             presentSound: true,
             sound: 'ready.aiff'
         ));
-
-    await flutterLocalNotificationsPlugin.show(
-        0, '운동 준비!', '자세를 잡으세요.', notificationDetails);
+    if(savedIsNotification != null && savedIsNotification){
+      await flutterLocalNotificationsPlugin.show(
+          0, '운동 준비!', '자세를 잡으세요.', notificationDetails);
+    } else if(savedIsNotification == null) {
+      await flutterLocalNotificationsPlugin.show(
+          0, '운동 준비!', '자세를 잡으세요.', notificationDetails);
+    }
   }
 
   static Future<void> showExerciseStartNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool? savedIsNotification = prefs.getBool('isNotification');
+
     const AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails('channel id', 'channel name',
         channelDescription: 'channel description',
@@ -78,7 +89,13 @@ class FlutterLocalNotification {
           sound: 'start.aiff',
         ));
 
-    await flutterLocalNotificationsPlugin.show(
-        0, '운동 시작!', '드가자잇!', notificationDetails);
+
+    if(savedIsNotification != null && savedIsNotification){
+      await flutterLocalNotificationsPlugin.show(
+          0, '운동 시작!', '드가자잇!', notificationDetails);
+    } else if(savedIsNotification == null) {
+      await flutterLocalNotificationsPlugin.show(
+          0, '운동 시작!', '드가자잇!', notificationDetails);
+    }
   }
 }
