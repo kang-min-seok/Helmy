@@ -147,7 +147,7 @@ class _CalendarPageState extends State<CalendarPage> {
               rightChevronIcon: Icon(Icons.chevron_right, color: Theme.of(context).primaryColor),
             ),
             calendarStyle : CalendarStyle(
-              outsideDaysVisible: false,
+              outsideDaysVisible: true,
               isTodayHighlighted: false,
               todayTextStyle: TextStyle(color: Theme.of(context).primaryColor),
               markerDecoration: BoxDecoration(

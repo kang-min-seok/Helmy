@@ -198,7 +198,11 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                 color: Colors.white,
                               ),
                             ),
-                            child: TextFormField(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: TextFormField(
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
                                     hintText: '운동 이름',
@@ -214,6 +218,18 @@ class _WorkoutRecordWidgetState extends State<WorkoutRecordWidget>
                                     FocusManager.instance.primaryFocus?.unfocus();
                                   },
                                 ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text("회",
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.surface,
+                                      fontSize: 15,
+                                    )
+                                ),
+
+                              ],
+                            )
+
                           )
 
                               : Container(
