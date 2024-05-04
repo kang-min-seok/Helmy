@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import '../notification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class TimerPage extends StatefulWidget {
@@ -22,14 +22,14 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
   static bool _isCompleted = false;
   final service = FlutterBackgroundService();
   static int tempSecond = seconds;
-
+  late final bool savedIsNotification;
   static StreamSubscription? updateSubscription;
   static StreamSubscription? completeSubscription;
 
   @override
   void initState() {
     super.initState();
-
+    getIsNotification();
     updateSubscription?.cancel();
     completeSubscription?.cancel();
     updateSubscription = service.on('update').listen((event) {
@@ -65,13 +65,22 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
     );
   }
 
+  void getIsNotification() async {
+    final pref = await SharedPreferences.getInstance();
+    savedIsNotification = pref.getBool('isNotification') ?? true;
+  }
+
   void _startTimer() {
     setState(() {
       seconds = maxSeconds;
       _isRunning = true;
       _isCompleted = false;
     });
-    service.invoke('startTimer', {'duration': maxSeconds});
+    _controller?.forward(from: 0);
+    service.invoke('startTimer', {
+      'duration': maxSeconds,
+      'isNotification': savedIsNotification,
+    });
   }
 
   void _resetTimer() {
@@ -80,6 +89,7 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
       _isRunning = false;
       _isCompleted = false;
     });
+    _controller?.reset();
     service.invoke('stopTimer');
   }
 
@@ -89,6 +99,10 @@ class _TimerPageState extends State<TimerPage> with TickerProviderStateMixin {
       maxSeconds = newMaxSeconds;
       seconds = newMaxSeconds;
     });
+    _controller = AnimationController(
+      duration: Duration(seconds: maxSeconds),
+      vsync: this,
+    );
   }
 
   void _showTimeSettingModal() {

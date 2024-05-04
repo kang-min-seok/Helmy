@@ -64,7 +64,6 @@ Future<void> initializeService() async {
       onBackground: onIosBackground,
     ),
   );
-  print("서비스 구성 및 시작");
   service.startService();
 }
 
@@ -74,19 +73,24 @@ void onStart(ServiceInstance service) {
 
   service.on('startTimer').listen((event) {
     int duration = event?['duration'] as int;
+    bool isNotification = event?['isNotification'] as bool;
     currentTimer?.cancel();
 
     // 새 타이머 시작
-    currentTimer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    currentTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
       if (duration > 0) {
         duration--;
-        print("현재초: $duration");
         service.invoke('update', {"seconds": duration});
+
         if (duration == 20) {
-          FlutterLocalNotification.showNotification();
+          if (isNotification) {
+            FlutterLocalNotification.instance.showNotification();
+          }
         }
       } else {
-        FlutterLocalNotification.showExerciseStartNotification();
+        if (isNotification) {
+          FlutterLocalNotification.instance.showExerciseStartNotification();
+        }
         timer.cancel();
         service.invoke('timerComplete', {});
       }

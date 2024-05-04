@@ -66,7 +66,7 @@ class _SettingPageState extends State<SettingPage> {
 
   void changeIsNotification(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isNotification', value);
+    await prefs.setBool('isNotification', value);
   }
 
   @override
