@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text("헬미",style: Theme.of(context).textTheme.displayLarge),
+                            Text("운동기록",style: Theme.of(context).textTheme.displayLarge),
                             const SizedBox(height: 10),
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,

@@ -72,9 +72,9 @@ class OnBoardingPage extends StatelessWidget {
         }
 
 
-        Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (context) => MyApp(themeMode: themeMode)),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => MyApp(themeMode: themeMode)),
+              (Route<dynamic> route) => false,
         );
       },
       next: const Icon(Icons.arrow_forward_ios),
