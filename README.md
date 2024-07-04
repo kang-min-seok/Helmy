@@ -14,7 +14,7 @@ Flutter로 제작하였으며 운동기록, 캘린더, 타이머 기능이 있�
 
 ## 스토어 링크
 
-<p align="center">
+<p align="left">
   <a href="https://play.google.com/store/apps/details?id=com.minseok.helmy">
     <img src="https://github.com/kang-min-seok/Helmy/assets/50363541/5d9ef5ab-4c89-4d69-8f11-35ed675aa988" width="200"/>
   </a>
